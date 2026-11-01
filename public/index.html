@@ -89,6 +89,9 @@ header{text-align:center;display:grid;gap:2px;pointer-events:none}
 .heard{min-height:2.6em;max-height:18vh;overflow-y:auto;font-size:1.05rem;line-height:1.45;overflow-wrap:anywhere;text-align:center}
 .heard.idle{color:var(--mute);font-size:.9rem}
 .interim{color:var(--mute)}
+.you{display:block;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;color:var(--mute);margin-bottom:4px}
+.you::before{content:"› "}
+.btn[aria-pressed="false"]{color:var(--mute)}
 .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .btn{font-family:var(--f-ui);font-weight:600;letter-spacing:.14em;font-size:.76rem;text-transform:uppercase;padding:10px 14px;cursor:pointer;
   border:1px solid var(--line);background:rgba(8,18,30,.6);color:var(--text);clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
@@ -129,11 +132,11 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
   <div class="dock">
     <div class="heard idle" id="heard" aria-live="polite"></div>
     <div class="row">
-      <button class="btn primary" id="send" disabled>Invia ad ARGO</button>
-      <button class="btn" id="quick" disabled>Chat rapida</button>
-      <button class="btn" id="clear" disabled aria-label="Cancella">✕</button>
+      <button class="btn" id="voice" aria-pressed="true">Voce on</button>
+      <button class="btn" id="send" disabled>Apri in Claude</button>
+      <button class="btn" id="clear" disabled aria-label="Nuova conversazione">✕</button>
     </div>
-    <form id="typed"><input type="text" id="q" autocomplete="off" placeholder="…oppure scrivi" aria-label="Messaggio per ARGO"><button class="btn" type="submit">OK</button></form>
+    <form id="typed"><input type="text" id="q" autocomplete="off" placeholder="…oppure scrivi ad ARGO" aria-label="Messaggio per ARGO"><button class="btn" type="submit">OK</button></form>
     <p class="note" id="note"></p>
   </div>
 </div>
@@ -143,6 +146,7 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
   const TZ="Europe/Rome", PROJECT="https://claude.ai/project/01a1961b-5665-775d-a03e-5b0b09137490";
   const $=id=>document.getElementById(id);
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let history=[],busy=false;
   const PNAME={1:"Critico",2:"Oggi",3:"Settimana",4:"In sospeso"};
   const PCOL={1:[255,79,139],2:[255,195,92],3:[76,255,210],4:[155,123,255]};
 
@@ -218,8 +222,15 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
     rest=rest.replace(/\s+(urgente|per oggi|questa settimana|in sospeso)$/i,(s,w)=>{p=/urgente/i.test(w)?1:/oggi/i.test(w)?2:/settimana/i.test(w)?3:4;return "";}).trim();
     if(!rest) return null; return {t:rest.charAt(0).toUpperCase()+rest.slice(1),p};
   }
-  function speak(t){try{if(!("speechSynthesis" in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="it-IT";u.rate=1.05;u.pitch=.85;
-    const v=speechSynthesis.getVoices().find(v=>/^it/i.test(v.lang));if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}
+  let voiceOn=true;try{voiceOn=localStorage.getItem("argo-voice")!=="0";}catch(e){}
+  function pickVoice(){const vs=speechSynthesis.getVoices().filter(v=>/^it/i.test(v.lang));
+    return vs.find(v=>/luca|alice|federica|paola|enhanced|premium/i.test(v.name))||vs[0];}
+  function speak(t,done){
+    if(!voiceOn||!("speechSynthesis" in window)){done&&done();return;}
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[*#_`>|]/g," "));u.lang="it-IT";u.rate=1.06;u.pitch=.82;
+      const v=pickVoice();if(v)u.voice=v;
+      u.onstart=()=>setMode("speak","ARGO parla");u.onend=u.onerror=()=>{done&&done();};speechSynthesis.speak(u);
+      setTimeout(()=>{if(!speechSynthesis.speaking&&mode==="speak"){done&&done();}},4000);}catch(e){done&&done();}}
 
   /* ---------- deep space background ---------- */
   const sp=$("space"),sx=sp.getContext("2d"); let SW=0,SH=0,stars=[];
@@ -238,7 +249,7 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
   const moons=[{a:1.9,b:.55,sp:.5,ph:0,tilt:.4},{a:2.25,b:.8,sp:-.33,ph:2,tilt:-.7},{a:1.6,b:1.1,sp:.8,ph:4,tilt:1.2}];
   let mode="idle",energy=0,target=0,t=0,rot=0,level=0,flashC=null,flashT=0;
   function flash(c){flashC=c;flashT=1;}
-  function setMode(m,label){mode=m;target=m==="idle"?0:m==="listen"?.55:.85;const s=$("status");s.textContent=label;s.classList.toggle("on",m!=="idle");}
+  function setMode(m,label){mode=m;target=m==="idle"?0:m==="listen"?.55:m==="think"?.7:.95;const s=$("status");s.textContent=label;s.classList.toggle("on",m!=="idle");}
 
   // smooth pseudo-noise from layered sines: organic, cheap, deterministic
   function blob(x,y,z,tt){return Math.sin(x*3.1+tt*1.3)*Math.sin(y*2.7-tt*.9)*.5+Math.sin(z*4.2+tt*1.7+x*1.5)*.3+Math.sin((x+y+z)*5.3-tt*2.1)*.2;}
@@ -284,7 +295,7 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
     const amp=.07+energy*.28;
     for(const p of pts){
       const n=blob(p.x,p.y,p.z,t*(1+energy));
-      const w=1+amp*n+(mode==="listen"?level*.25*Math.sin(p.s+t*12):0);
+      const w=1+amp*n+(mode==="listen"?level*.25*Math.sin(p.s+t*12):0)+(mode==="speak"?.08*Math.sin(t*14+p.y*6):0)+(mode==="think"?.05*Math.sin(t*6+p.s):0);
       const x=p.x*w,y=p.y*w,z=p.z*w;
       const x1=x*cY-z*sY,z1=x*sY+z*cY,y1=y*cX-z1*sX,z2=y*sX+z1*cX,ps=1.9/(2.6-z2);
       P.push([cx+x1*R*ps,cy+y1*R*ps,z2,ps,n]);
@@ -298,7 +309,8 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
       const h=170+((n+1)/2)*110+Math.sin(t*.7)*15;
       let al=.12+d*.8;
       let col;
-      if(flashT>0&&d>.55&&flashC){col=`rgba(${flashC[0]},${flashC[1]},${flashC[2]},${al})`;}
+      if(mode==="speak"&&d>.62){col=`rgba(255,${190+((n+1)*30|0)},${120+((n+1)*40|0)},${al})`;}
+      else if(flashT>0&&d>.55&&flashC){col=`rgba(${flashC[0]},${flashC[1]},${flashC[2]},${al})`;}
       else col=`hsla(${h},100%,${62+d*14}%,${al})`;
       ctx.fillStyle=col;const r=(.5+d*1.6)*ps;ctx.fillRect(x-r/2,y-r/2,r,r);
     }
@@ -327,16 +339,18 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
   let rec=null,listening=false,finalText="",retried=false;
   const note=(txt,warn)=>{$("note").textContent=txt||"";$("note").classList.toggle("warn",!!warn);};
   if(!SR) note("Questo browser non trascrive la voce: usa Safari o Chrome, oppure il microfono della tastiera.",true);
+  let lastAnswer="";
   function render(interim){
-    const h=$("heard");h.textContent="";const idle=!finalText&&!interim;h.classList.toggle("idle",idle);
+    const h=$("heard");h.textContent="";const idle=!finalText&&!interim&&!lastAnswer;h.classList.toggle("idle",idle);
     if(idle) h.textContent=listening?"Ti ascolto…":greeting;
-    else{h.append(document.createTextNode(finalText));if(interim){const s=document.createElement("span");s.className="interim";s.textContent=(finalText?" ":"")+interim;h.append(s);}}
-    const has=!!finalText.trim();["send","quick","clear"].forEach(id=>$(id).disabled=!has);
+    else if(listening||interim||(finalText&&!lastAnswer)){h.append(document.createTextNode(finalText));if(interim){const s=document.createElement("span");s.className="interim";s.textContent=(finalText?" ":"")+interim;h.append(s);}}
+    else{const y=document.createElement("span");y.className="you";y.textContent=finalText;h.append(y,document.createTextNode(lastAnswer));}
+    const has=!!(finalText.trim()||history.length);["send","clear"].forEach(id=>$(id).disabled=!has);
   }
   render("");
   function handleFinal(){
     const cmd=parseAdd(finalText);
-    if(cmd){addTask(cmd.t,cmd.p);note(`Aggiunta in ${PNAME[cmd.p]}: ${cmd.t}`);speak(`Fatto. Aggiunta in ${PNAME[cmd.p]}.`);finalText="";render("");return true;}
+    if(cmd){addTask(cmd.t,cmd.p);note(`Aggiunta in ${PNAME[cmd.p]}: ${cmd.t}`);lastAnswer="";speak(`Fatto. Aggiunta in ${PNAME[cmd.p]}.`,()=>setMode("idle","Tocca il nucleo"));finalText="";render("");return true;}
     return false;
   }
   async function listen(){
@@ -344,7 +358,7 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
     if(!SR){$("q").focus();return;}
     if(listening){rec&&rec.stop();return;}
     try{speechSynthesis&&speechSynthesis.cancel();}catch(e){}
-    finalText="";render("");
+    finalText="";lastAnswer="";render("");
     rec=new SR();rec.lang="it-IT";rec.interimResults=true;rec.continuous=false;
     rec.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)finalText+=(finalText?" ":"")+r[0].transcript.trim();else interim+=r[0].transcript;}render(interim);};
     rec.onerror=e=>{
@@ -352,13 +366,47 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
       if(e.error==="not-allowed"||e.error==="service-not-allowed") note("Microfono non autorizzato. iPhone: Impostazioni › Safari › Microfono, e Privacy › Riconoscimento vocale.",true);
       else if(e.error==="no-speech") note("Non ho sentito nulla. Tocca di nuovo il nucleo.");
     };
-    rec.onend=()=>{listening=false;stopMeter();const added=finalText&&handleFinal();
-      setMode("idle",added?"Attività registrata":finalText?"Pronto a inviare":"Tocca il nucleo");render("");};
+    rec.onend=()=>{listening=false;stopMeter();
+      if(!finalText){setMode("idle","Tocca il nucleo");render("");return;}
+      if(handleFinal()){setMode("idle","Attività registrata");return;}
+      ask(finalText);};
     try{if(!retried) await startMeter();rec.start();listening=true;setMode("listen","In ascolto");note("");}
     catch(e){listening=false;stopMeter();setMode("idle","Tocca il nucleo");}
   }
+  try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}catch(e){}
   cv.addEventListener("click",listen);
   cv.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();listen();}});
+
+  /* ---------- brain (Claude API via /api/chat) ---------- */
+  function findTask(text){const q=text.toLowerCase();let best=null,score=0;
+    for(const x of tasks){if(x.done)continue;const w=x.t.toLowerCase();let s=0;for(const tok of q.split(/\W+/))if(tok.length>3&&w.includes(tok))s++;if(s>score){score=s;best=x;}}return best;}
+  function applyActions(actions){const said=[];
+    for(const a of actions||[]){
+      if(a.name==="add_task"&&a.input&&a.input.text){const p=[1,2,3,4].includes(+a.input.priority)?+a.input.priority:2;addTask(String(a.input.text),p);said.push(`Aggiunta in ${PNAME[p]}.`);}
+      if(a.name==="complete_task"&&a.input&&a.input.text){const x=findTask(String(a.input.text));if(x){x.done=true;save();renderTabs();renderSheet();said.push("Segnata come fatta.");}}
+    }return said.join(" ");}
+  async function ask(text){
+    text=text.trim();if(!text||busy)return;busy=true;finalText=text;lastAnswer="";render("");
+    setMode("think","Elaborazione");note("");
+    history.push({role:"user",content:text});
+    try{
+      const r=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},
+        body:JSON.stringify({messages:history.slice(-12),tasks:tasks.filter(x=>!x.done).map(x=>({t:x.t,p:x.p}))})});
+      const data=await r.json().catch(()=>({}));
+      if(!r.ok){history.pop();lastAnswer="";render("");setMode("idle","Tocca il nucleo");
+        note(data.error==="missing_key"?"Cervello non ancora collegato: manca la chiave API su Vercel.":(data.message||"Risposta non arrivata. Riprova."),true);busy=false;return;}
+      const extra=applyActions(data.actions);
+      const answer=(data.text||extra||"Fatto.").trim();
+      history.push({role:"assistant",content:answer});
+      lastAnswer=answer;render("");
+      speak(answer,()=>setMode("idle","Tocca il nucleo"));
+      if(!voiceOn)setMode("idle","Tocca il nucleo");
+    }catch(e){history.pop();setMode("idle","Tocca il nucleo");note("Connessione assente. Riprova.",true);}
+    busy=false;
+  }
+  $("voice").setAttribute("aria-pressed",String(voiceOn));$("voice").textContent=voiceOn?"Voce on":"Voce off";
+  $("voice").addEventListener("click",()=>{voiceOn=!voiceOn;$("voice").setAttribute("aria-pressed",String(voiceOn));$("voice").textContent=voiceOn?"Voce on":"Voce off";
+    try{localStorage.setItem("argo-voice",voiceOn?"1":"0");}catch(e){}if(!voiceOn){try{speechSynthesis.cancel();}catch(e){}setMode("idle","Tocca il nucleo");}});
 
   /* ---------- hand-off to Claude ---------- */
   function openLink(url){const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();}
@@ -367,11 +415,10 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
     note("Frase copiata. Nel progetto ARGO apri una nuova chat e incolla.");openLink(PROJECT);setTimeout(()=>setMode("idle","Tocca il nucleo"),2500);}
   function quickChat(text){text=text.trim();if(!text)return;setMode("send","Trasmissione");
     openLink("https://claude.ai/new?q="+encodeURIComponent("ARGO, "+text));setTimeout(()=>setMode("idle","Tocca il nucleo"),2500);}
-  $("send").addEventListener("click",()=>sendToArgo(finalText));
-  $("quick").addEventListener("click",()=>quickChat(finalText));
-  $("clear").addEventListener("click",()=>{finalText="";note("");render("");});
-  $("typed").addEventListener("submit",e=>{e.preventDefault();const v=$("q").value.trim();if(!v)return;$("q").value="";finalText=v;
-    if(handleFinal())return; render("");sendToArgo(v);});
+  $("send").addEventListener("click",()=>{const last=history.filter(m=>m.role==="user").slice(-1)[0];sendToArgo(last?last.content:finalText);});
+  $("clear").addEventListener("click",()=>{history=[];finalText="";lastAnswer="";note("");try{speechSynthesis.cancel();}catch(e){}setMode("idle","Tocca il nucleo");render("");});
+  $("typed").addEventListener("submit",e=>{e.preventDefault();const v=$("q").value.trim();if(!v)return;$("q").value="";$("q").blur();finalText=v;
+    if(handleFinal())return; ask(v);});
 })();
 </script>
 </body>
