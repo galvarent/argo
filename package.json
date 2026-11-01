@@ -1,0 +1,7 @@
+{
+  "name": "argo",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node scripts/icons.mjs" },
+  "devDependencies": { "sharp": "0.33.5" }
+}
