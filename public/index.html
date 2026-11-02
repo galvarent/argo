@@ -89,7 +89,12 @@ header{text-align:center;display:grid;gap:2px;pointer-events:none}
 .sheet .tx small{display:block;font-family:var(--f-mono);font-size:.62rem;color:var(--mute);margin-top:2px}
 .chk{appearance:none;-webkit-appearance:none;width:18px;height:18px;margin:2px 0 0;border:1px solid var(--c);transform:rotate(45deg) scale(.8);cursor:pointer;background:transparent}
 .chk:checked{background:var(--c);box-shadow:0 0 10px var(--c)}
-.mv{font-family:var(--f-mono);font-size:.62rem;background:none;border:1px solid var(--line);color:var(--mute);padding:3px 6px;cursor:pointer}
+.mv{font-family:var(--f-mono);font-size:.64rem;background:rgba(8,18,30,.8);border:1px solid var(--line);color:var(--text);padding:5px 4px;cursor:pointer;max-width:9.5em}
+.toast{position:absolute;z-index:6;left:50%;bottom:72px;transform:translateX(-50%);display:flex;gap:12px;align-items:center;white-space:nowrap;max-width:calc(100% - 8px);
+  background:rgba(5,12,22,.96);border:1px solid var(--line);padding:9px 12px;font-family:var(--f-mono);font-size:.7rem;color:var(--text)}
+.toast span{overflow:hidden;text-overflow:ellipsis}
+.toast button{background:none;border:0;color:var(--p2);font:inherit;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:2px 4px}
+.toast[hidden]{display:none}
 .empty{color:var(--mute);font-size:.85rem;padding:6px 0}
 .addrow{display:flex;gap:8px}
 .sheet .foot{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.62rem;color:var(--mute)}
@@ -132,6 +137,7 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
     <button class="tab bl" data-p="3" aria-label="Attività della settimana"><i class="pip"></i><span class="lbl">Settimana <span class="top"></span></span><b class="n">0</b></button>
     <button class="tab br" data-p="4" aria-label="Attività in sospeso"><i class="pip"></i><span class="lbl">In sospeso <span class="top"></span></span><b class="n">0</b></button>
     <div class="status" id="status">Tocca il nucleo</div>
+    <div class="toast" id="toast" role="status" hidden><span id="toastMsg"></span><button id="undo" type="button">Annulla</button></div>
     <section class="sheet" id="sheet" hidden aria-live="polite">
       <h2><span id="sheetTitle"></span><button id="close" aria-label="Chiudi">CHIUDI ✕</button></h2>
       <ul id="list"></ul>
@@ -220,11 +226,14 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
     for(const it of items){
       const li=document.createElement("li"); if(it.done) li.className="done";
       const c=document.createElement("input");c.type="checkbox";c.className="chk";c.checked=it.done;c.id="t"+it.id;c.setAttribute("aria-label","Completata: "+it.t);
-      c.addEventListener("change",()=>{it.done=c.checked;save();renderTabs();renderSheet();});
+      c.addEventListener("change",()=>{snap();it.done=c.checked;save();renderTabs();renderSheet();if(it.done)toast("Completata: "+it.t);});
       const tx=document.createElement("label");tx.className="tx";tx.htmlFor=c.id;tx.textContent=it.t;
       const sm=document.createElement("small");sm.textContent=new Date(it.at).toLocaleDateString("it-IT",{day:"numeric",month:"short",timeZone:TZ});tx.append(sm);
-      const mv=document.createElement("button");mv.className="mv";mv.type="button";mv.textContent=it.p>1?"↑ P"+(it.p-1):"↓ P2";
-      mv.title="Cambia priorità";mv.addEventListener("click",()=>{it.p=it.p>1?it.p-1:2;save();renderTabs();renderSheet();});
+      const mv=document.createElement("select");mv.className="mv";mv.setAttribute("aria-label","Sposta: "+it.t);
+      const o0=document.createElement("option");o0.value="";o0.textContent="Sposta in…";mv.append(o0);
+      [1,2,3,4].filter(p=>p!==it.p).forEach(p=>{const o=document.createElement("option");o.value=p;o.textContent=PNAME[p];mv.append(o);});
+      mv.addEventListener("change",()=>{const p=+mv.value;if(!p)return;snap();it.p=p;save();renderTabs();renderSheet();toast("Spostata in "+PNAME[p]);
+        const tab=document.querySelector(`.tab[data-p="${p}"]`);tab.classList.remove("pulse");void tab.offsetWidth;tab.classList.add("pulse");});
       li.append(c,tx,mv); ul.append(li);
     }
   }
@@ -232,7 +241,11 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
   function closeSheet(){current=null;$("sheet").hidden=true;}
   document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{const p=+b.dataset.p;current===p?closeSheet():openSheet(p);}));
   $("close").addEventListener("click",closeSheet);
-  $("purge").addEventListener("click",()=>{tasks=tasks.filter(x=>!(x.p===current&&x.done));save();renderTabs();renderSheet();});
+  $("purge").addEventListener("click",()=>{const n=tasks.filter(x=>x.p===current&&x.done).length;if(!n)return;snap();tasks=tasks.filter(x=>!(x.p===current&&x.done));save();renderTabs();renderSheet();toast(n===1?"Rimossa 1 attività":"Rimosse "+n+" attività");});
+  let undoSnap=null,toastT=null;
+  function snap(){undoSnap=JSON.stringify(tasks);}
+  function toast(msg){$("toastMsg").textContent=msg;$("toast").hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{$("toast").hidden=true;undoSnap=null;},7000);}
+  $("undo").addEventListener("click",()=>{if(undoSnap){try{tasks=JSON.parse(undoSnap);}catch(e){}save();renderTabs();renderSheet();}undoSnap=null;$("toast").hidden=true;});
   $("addForm").addEventListener("submit",e=>{e.preventDefault();const v=$("addInput").value.trim();if(!v)return;addTask(v,current);$("addInput").value="";});
   addEventListener("keydown",e=>{if(e.key==="Escape"){closeSheet();$("vsheet").hidden=true;}});
   function addTask(text,p){tasks.push({id:Date.now(),t:text,p,done:false,at:Date.now()});save();renderTabs();renderSheet();
