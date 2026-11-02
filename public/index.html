@@ -68,6 +68,17 @@ header{text-align:center;display:grid;gap:2px;pointer-events:none}
   border-top:2px solid var(--c);padding:14px;display:grid;gap:10px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   clip-path:polygon(0 0,94% 0,100% 5%,100% 100%,6% 100%,0 95%)}
 .sheet[hidden]{display:none}
+.vgrid{display:grid;gap:12px}
+.vgrid label{display:grid;gap:6px;font-family:var(--f-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.vgrid label output{color:var(--text);float:right}
+.vgrid select{background:rgba(8,18,30,.8);border:1px solid var(--line);color:var(--text);font-family:var(--f-ui);font-size:.95rem;padding:9px}
+.vgrid input[type=range]{width:100%;accent-color:var(--c)}
+.presets{display:flex;gap:6px;flex-wrap:wrap}
+.presets .btn{padding:8px 11px;font-size:.68rem}
+.presets .btn[aria-pressed="true"]{background:var(--c);color:#0b0718;border-color:var(--c)}
+.switch{display:flex!important;grid-template-columns:none!important;flex-direction:row!important;align-items:center;gap:10px!important;text-transform:none!important;letter-spacing:.04em!important;font-size:.78rem!important;color:var(--text)!important}
+.switch input{accent-color:var(--c);width:18px;height:18px}
+.vnote{font-family:var(--f-mono);font-size:.62rem;line-height:1.55;color:var(--mute);margin:0}
 .sheet[data-p="1"]{--c:var(--p1)} .sheet[data-p="2"]{--c:var(--p2)} .sheet[data-p="3"]{--c:var(--p3)} .sheet[data-p="4"]{--c:var(--p4)}
 .sheet h2{margin:0;font-family:var(--f-brand);font-size:.78rem;letter-spacing:.4em;color:var(--c);display:flex;justify-content:space-between;align-items:center}
 .sheet h2 button{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;background:none;border:0;color:var(--mute);cursor:pointer;padding:4px}
@@ -127,12 +138,30 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
       <form class="addrow" id="addForm"><input type="text" id="addInput" autocomplete="off" placeholder="Nuova attività…" aria-label="Nuova attività"><button class="btn" type="submit">+</button></form>
       <div class="foot"><span>Salvate su questo dispositivo</span><button id="purge">Rimuovi completate</button></div>
     </section>
+    <section class="sheet" id="vsheet" data-p="4" hidden>
+      <h2><span>VOCE DI ARGO</span><button id="vclose" aria-label="Chiudi">CHIUDI ✕</button></h2>
+      <div class="vgrid">
+        <label class="switch"><input type="checkbox" id="vOn"> Risposte a voce</label>
+        <div class="presets" id="presets" role="group" aria-label="Stile voce">
+          <button class="btn" type="button" data-preset="argo">ARGO</button>
+          <button class="btn" type="button" data-preset="profondo">Profondo</button>
+          <button class="btn" type="button" data-preset="naturale">Naturale</button>
+          <button class="btn" type="button" data-preset="rapido">Rapido</button>
+        </div>
+        <label for="vName">Voce<select id="vName"></select></label>
+        <label for="vPitch">Tono <output id="oPitch"></output><input type="range" id="vPitch" min="0.5" max="1.4" step="0.02"></label>
+        <label for="vRate">Velocità <output id="oRate"></output><input type="range" id="vRate" min="0.7" max="1.4" step="0.02"></label>
+        <label class="switch"><input type="checkbox" id="vFx"> Effetti HUD (segnale di attivazione e risonanza)</label>
+        <button class="btn primary" type="button" id="vTest">Prova la voce</button>
+        <p class="vnote">Per la voce migliore scarica Luca nella versione Migliorata o Premium: Impostazioni › Accessibilità › Contenuti letti e parlati › Voci › Italiano.</p>
+      </div>
+    </section>
   </div>
 
   <div class="dock">
     <div class="heard idle" id="heard" aria-live="polite"></div>
     <div class="row">
-      <button class="btn" id="voice" aria-pressed="true">Voce on</button>
+      <button class="btn" id="voice" aria-haspopup="dialog">Voce</button>
       <button class="btn" id="send" disabled>Apri in Claude</button>
       <button class="btn" id="clear" disabled aria-label="Nuova conversazione">✕</button>
     </div>
@@ -199,13 +228,13 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
       li.append(c,tx,mv); ul.append(li);
     }
   }
-  function openSheet(p){current=p;$("sheet").hidden=false;renderSheet();}
+  function openSheet(p){current=p;$("vsheet")&&($("vsheet").hidden=true);$("sheet").hidden=false;renderSheet();}
   function closeSheet(){current=null;$("sheet").hidden=true;}
   document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{const p=+b.dataset.p;current===p?closeSheet():openSheet(p);}));
   $("close").addEventListener("click",closeSheet);
   $("purge").addEventListener("click",()=>{tasks=tasks.filter(x=>!(x.p===current&&x.done));save();renderTabs();renderSheet();});
   $("addForm").addEventListener("submit",e=>{e.preventDefault();const v=$("addInput").value.trim();if(!v)return;addTask(v,current);$("addInput").value="";});
-  addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
+  addEventListener("keydown",e=>{if(e.key==="Escape"){closeSheet();$("vsheet").hidden=true;}});
   function addTask(text,p){tasks.push({id:Date.now(),t:text,p,done:false,at:Date.now()});save();renderTabs();renderSheet();
     const tab=document.querySelector(`.tab[data-p="${p}"]`);tab.classList.remove("pulse");void tab.offsetWidth;tab.classList.add("pulse");flash(PCOL[p]);}
   renderTabs();
@@ -222,15 +251,42 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
     rest=rest.replace(/\s+(urgente|per oggi|questa settimana|in sospeso)$/i,(s,w)=>{p=/urgente/i.test(w)?1:/oggi/i.test(w)?2:/settimana/i.test(w)?3:4;return "";}).trim();
     if(!rest) return null; return {t:rest.charAt(0).toUpperCase()+rest.slice(1),p};
   }
-  let voiceOn=true;try{voiceOn=localStorage.getItem("argo-voice")!=="0";}catch(e){}
-  function pickVoice(){const vs=speechSynthesis.getVoices().filter(v=>/^it/i.test(v.lang));
-    return vs.find(v=>/luca|alice|federica|paola|enhanced|premium/i.test(v.name))||vs[0];}
+  /* ---------- voice (iOS/Chrome speech synthesis + HUD sound) ---------- */
+  const PRESETS={argo:{pitch:.78,rate:.98},profondo:{pitch:.64,rate:.92},naturale:{pitch:1,rate:1},rapido:{pitch:.9,rate:1.16}};
+  const VKEY="argo-voice-v2";
+  let vs={on:true,name:"",pitch:.78,rate:.98,fx:true,preset:"argo"};
+  try{const o=JSON.parse(localStorage.getItem(VKEY)||"null");if(o)vs={...vs,...o};else if(localStorage.getItem("argo-voice")==="0")vs.on=false;}catch(e){}
+  function saveVoice(){try{localStorage.setItem(VKEY,JSON.stringify(vs));}catch(e){}}
+  const hasTTS="speechSynthesis" in window;
+  function itVoices(){if(!hasTTS)return[];return speechSynthesis.getVoices().filter(v=>/^it/i.test(v.lang));}
+  function rank(v){let r=0;if(/luca/i.test(v.name))r+=10;if(/premium/i.test(v.name+v.voiceURI))r+=6;if(/enhanced|migliorat/i.test(v.name+v.voiceURI))r+=4;if(v.localService)r+=1;return r;}
+  function pickVoice(){const list=itVoices();if(!list.length)return null;
+    return list.find(v=>v.voiceURI===vs.name)||list.slice().sort((a,b)=>rank(b)-rank(a))[0];}
+  // HUD sound: a short two-tone chirp on start and a faint low resonance while ARGO speaks
+  let fx=null;
+  function fxCtx(){if(!fx){try{const C=window.AudioContext||window.webkitAudioContext;const c=new C();
+      const master=c.createGain();master.gain.value=0;master.connect(c.destination);
+      const lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=320;lp.Q.value=6;lp.connect(master);
+      [55,110,82.5].forEach((f,i)=>{const o=c.createOscillator();o.type=i===1?"triangle":"sine";o.frequency.value=f;
+        const g=c.createGain();g.gain.value=i===0?.9:.35;o.connect(g);g.connect(lp);o.start();});
+      fx={c,master};}catch(e){fx=null;}}
+    if(fx&&fx.c.state==="suspended")fx.c.resume().catch(()=>{});return fx;}
+  function chirp(){if(!vs.fx)return;const f=fxCtx();if(!f)return;const c=f.c,t0=c.currentTime;
+    [[1320,0],[1980,.07]].forEach(([fr,dt])=>{const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=fr;
+      g.gain.setValueAtTime(0,t0+dt);g.gain.linearRampToValueAtTime(.06,t0+dt+.01);g.gain.exponentialRampToValueAtTime(.0001,t0+dt+.12);
+      o.connect(g);g.connect(c.destination);o.start(t0+dt);o.stop(t0+dt+.14);});}
+  function hum(on){if(!vs.fx&&on)return;const f=fx;if(!f)return;const t0=f.c.currentTime;
+    f.master.gain.cancelScheduledValues(t0);f.master.gain.setTargetAtTime(on?.05:0,t0,on?.15:.25);}
   function speak(t,done){
-    if(!voiceOn||!("speechSynthesis" in window)){done&&done();return;}
-    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[*#_`>|]/g," "));u.lang="it-IT";u.rate=1.06;u.pitch=.82;
+    const finish=()=>{hum(false);done&&done();};
+    if(!vs.on||!hasTTS){done&&done();return;}
+    try{speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(t.replace(/[*#_`>|]/g," "));u.lang="it-IT";u.rate=vs.rate;u.pitch=vs.pitch;
       const v=pickVoice();if(v)u.voice=v;
-      u.onstart=()=>setMode("speak","ARGO parla");u.onend=u.onerror=()=>{done&&done();};speechSynthesis.speak(u);
-      setTimeout(()=>{if(!speechSynthesis.speaking&&mode==="speak"){done&&done();}},4000);}catch(e){done&&done();}}
+      u.onstart=()=>{setMode("speak","ARGO parla");hum(true);};u.onend=u.onerror=finish;
+      chirp();setTimeout(()=>speechSynthesis.speak(u),vs.fx?170:0);
+      setTimeout(()=>{if(!speechSynthesis.speaking&&!speechSynthesis.pending&&mode==="speak")finish();},5000);
+    }catch(e){finish();}}
 
   /* ---------- deep space background ---------- */
   const sp=$("space"),sx=sp.getContext("2d"); let SW=0,SH=0,stars=[];
@@ -373,8 +429,8 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
     try{if(!retried) await startMeter();rec.start();listening=true;setMode("listen","In ascolto");note("");}
     catch(e){listening=false;stopMeter();setMode("idle","Tocca il nucleo");}
   }
-  try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}catch(e){}
-  cv.addEventListener("click",listen);
+  try{speechSynthesis.getVoices();}catch(e){}
+  cv.addEventListener("click",()=>{fxCtx();listen();});
   cv.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();listen();}});
 
   /* ---------- brain (Claude API via /api/chat) ---------- */
@@ -400,13 +456,31 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
       history.push({role:"assistant",content:answer});
       lastAnswer=answer;render("");
       speak(answer,()=>setMode("idle","Tocca il nucleo"));
-      if(!voiceOn)setMode("idle","Tocca il nucleo");
+      if(!vs.on)setMode("idle","Tocca il nucleo");
     }catch(e){history.pop();setMode("idle","Tocca il nucleo");note("Connessione assente. Riprova.",true);}
     busy=false;
   }
-  $("voice").setAttribute("aria-pressed",String(voiceOn));$("voice").textContent=voiceOn?"Voce on":"Voce off";
-  $("voice").addEventListener("click",()=>{voiceOn=!voiceOn;$("voice").setAttribute("aria-pressed",String(voiceOn));$("voice").textContent=voiceOn?"Voce on":"Voce off";
-    try{localStorage.setItem("argo-voice",voiceOn?"1":"0");}catch(e){}if(!voiceOn){try{speechSynthesis.cancel();}catch(e){}setMode("idle","Tocca il nucleo");}});
+  function fillVoices(){const sel=$("vName");const list=itVoices();const cur=pickVoice();sel.textContent="";
+    if(!list.length){const o=document.createElement("option");o.textContent=hasTTS?"Voce italiana di sistema":"Sintesi vocale non disponibile";sel.append(o);sel.disabled=true;return;}
+    sel.disabled=false;list.slice().sort((a,b)=>rank(b)-rank(a)).forEach(v=>{const o=document.createElement("option");o.value=v.voiceURI;
+      o.textContent=v.name+(/premium/i.test(v.name+v.voiceURI)?" · Premium":/enhanced|migliorat/i.test(v.name+v.voiceURI)?" · Migliorata":"");
+      if(cur&&v.voiceURI===cur.voiceURI)o.selected=true;sel.append(o);});}
+  function syncVoiceUI(){$("vOn").checked=vs.on;$("vFx").checked=vs.fx;$("vPitch").value=vs.pitch;$("vRate").value=vs.rate;
+    $("oPitch").textContent=(+vs.pitch).toFixed(2);$("oRate").textContent=(+vs.rate).toFixed(2);
+    document.querySelectorAll("#presets .btn").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.preset===vs.preset)));
+    $("voice").textContent=vs.on?"Voce":"Voce off";}
+  function openVoice(){closeSheet();fillVoices();syncVoiceUI();$("vsheet").hidden=false;}
+  function closeVoice(){$("vsheet").hidden=true;}
+  $("voice").addEventListener("click",()=>{fxCtx();$("vsheet").hidden?openVoice():closeVoice();});
+  $("vclose").addEventListener("click",closeVoice);
+  $("vOn").addEventListener("change",e=>{vs.on=e.target.checked;saveVoice();syncVoiceUI();if(!vs.on){try{speechSynthesis.cancel();}catch(_){}hum(false);setMode("idle","Tocca il nucleo");}});
+  $("vFx").addEventListener("change",e=>{vs.fx=e.target.checked;saveVoice();if(!vs.fx)hum(false);});
+  $("vName").addEventListener("change",e=>{vs.name=e.target.value;saveVoice();});
+  ["vPitch","vRate"].forEach(id=>$(id).addEventListener("input",e=>{vs[id==="vPitch"?"pitch":"rate"]=+e.target.value;vs.preset="";saveVoice();syncVoiceUI();}));
+  document.querySelectorAll("#presets .btn").forEach(b=>b.addEventListener("click",()=>{const p=PRESETS[b.dataset.preset];vs.pitch=p.pitch;vs.rate=p.rate;vs.preset=b.dataset.preset;saveVoice();syncVoiceUI();}));
+  $("vTest").addEventListener("click",()=>{fxCtx();const was=vs.on;vs.on=true;speak("Buongiorno, Andrea. Tutti i sistemi sono operativi. Il corso FIGC ti aspetta alle dieci e trenta.",()=>setMode("idle","Tocca il nucleo"));vs.on=was;});
+  if(hasTTS){try{speechSynthesis.onvoiceschanged=()=>{if(!$("vsheet").hidden)fillVoices();};}catch(e){}}
+  syncVoiceUI();
 
   /* ---------- hand-off to Claude ---------- */
   function openLink(url){const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();}
