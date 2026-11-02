@@ -277,15 +277,21 @@ input[type=text]{flex:1;min-width:0;background:rgba(8,18,30,.8);border:1px solid
       o.connect(g);g.connect(c.destination);o.start(t0+dt);o.stop(t0+dt+.14);});}
   function hum(on){if(!vs.fx&&on)return;const f=fx;if(!f)return;const t0=f.c.currentTime;
     f.master.gain.cancelScheduledValues(t0);f.master.gain.setTargetAtTime(on?.05:0,t0,on?.15:.25);}
+  // iOS only lets a page talk after speech has been started once directly from a tap: unlock it on the first touch.
+  let ttsUnlocked=false,lastU=null;
+  function unlockTTS(){if(ttsUnlocked||!hasTTS)return;ttsUnlocked=true;
+    try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;u.lang="it-IT";speechSynthesis.speak(u);}catch(e){}fxCtx();}
+  addEventListener("pointerdown",unlockTTS,{capture:true});addEventListener("touchend",unlockTTS,{capture:true});
   function speak(t,done){
-    const finish=()=>{hum(false);done&&done();};
+    let ended=false;const finish=()=>{if(ended)return;ended=true;hum(false);done&&done();};
     if(!vs.on||!hasTTS){done&&done();return;}
-    try{speechSynthesis.cancel();
-      const u=new SpeechSynthesisUtterance(t.replace(/[*#_`>|]/g," "));u.lang="it-IT";u.rate=vs.rate;u.pitch=vs.pitch;
+    try{
+      if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(t.replace(/[*#_`>|]/g," "));u.lang="it-IT";u.rate=vs.rate;u.pitch=vs.pitch;u.volume=1;
       const v=pickVoice();if(v)u.voice=v;
       u.onstart=()=>{setMode("speak","ARGO parla");hum(true);};u.onend=u.onerror=finish;
-      chirp();setTimeout(()=>speechSynthesis.speak(u),vs.fx?170:0);
-      setTimeout(()=>{if(!speechSynthesis.speaking&&!speechSynthesis.pending&&mode==="speak")finish();},5000);
+      lastU=u; chirp(); speechSynthesis.speak(u); try{speechSynthesis.resume();}catch(e){}
+      setTimeout(()=>{if(!speechSynthesis.speaking&&!speechSynthesis.pending)finish();},Math.max(6000,t.length*90));
     }catch(e){finish();}}
 
   /* ---------- deep space background ---------- */
