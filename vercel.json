@@ -1,22 +1,17 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "public",
+  "regions": ["fra1"],
+  "functions": {
+    "api/chat.js": { "maxDuration": 60 },
+    "api/data.js": { "maxDuration": 15 },
+    "api/firma.js": { "includeFiles": "{public,lib,api}/**" }
+  },
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "Permissions-Policy",
-          "value": "microphone=(self)"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "no-referrer"
-        }
+        { "key": "Permissions-Policy", "value": "microphone=(self)" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
       ]
     }
   ]
