@@ -1,24 +1,11 @@
-# ARGO
+# ARGO HQ
 
-Assistente personale vocale di Andrea (Assistente Remoto Galvano Operativo). PWA su Vercel con cervello Claude API.
+L'ufficio in pixel art dove Andrea vede il team di ARGO al lavoro.
 
-## Struttura
-- `public/index.html` – interfaccia (nucleo di particelle, voce in/out, mani libere, schede partite e promemoria, PIN).
-- `api/chat.js` – conversazione con Claude e strumenti. Usato anche dal Comando Rapido "Ehi Siri, ARGO" (`source: "siri"`).
-- `api/data.js` – dati per le schede (partite, promemoria, stato dei collegamenti).
-- `api/firma.js` – impronte dei file pubblicati, per verificare il deploy.
-- `lib/core.js` – contesto di Andrea, partite Tavernola, strumenti (promemoria, note, database clienti, meteo, ricerca web).
-- `supabase-argo.sql` – tabelle di ARGO da creare nel database del portale clienti.
+- `public/index.html` – la scena (canvas) con Penelope, Ermes, Orione, Chirone e le postazioni in arrivo; sotto, il messaggio di ARGO e il registro.
+- `api/hq.js` – legge stato, rapporti e registro dal database Supabase `argo-hq` tramite la funzione `argo_leggi`.
+- Gli agenti sono attività programmate di Claude: scrivono nel database con `argo_inizio`, `argo_fine` e `argo_capo_scrivi`.
 
-## Variabili d'ambiente (Vercel)
-| Nome | Uso |
-|---|---|
-| `ANTHROPIC_API_KEY` | Claude API (obbligatoria) |
-| `ARGO_PIN` | PIN di accesso, almeno 10 caratteri (obbligatoria) |
-| `SUPABASE_URL` | database del portale clienti |
-| `SUPABASE_SERVICE_ROLE_KEY` | chiave server Supabase (solo lato server) |
-| `ARGO_MODEL` | opzionale, default `claude-haiku-5-5` |
-| `ARGO_WEB_SEARCH` | opzionale, `0` per disattivare la ricerca web |
+Variabili su Vercel: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `ARGO_HQ_SECRET`. Il sito è protetto dall'accesso con account Vercel.
 
-## Da aggiornare a mano
-Partite e settimana tipo stanno in `lib/core.js`: aggiornali quando esce il calendario della fase primaverile.
+La versione precedente (app vocale con Claude API) resta nello storico del repository.

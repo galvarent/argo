@@ -2,498 +2,462 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<title>ARGO</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#04060b">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ARGO">
+<meta name="apple-mobile-web-app-title" content="ARGO HQ">
+<meta name="theme-color" content="#070b18">
 <meta name="robots" content="noindex,nofollow">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="icon" href="/icon-180.png">
+<title>ARGO HQ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Sora:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#04060b; --ink:#e8f1f5; --dim:#7d8b97; --line:rgba(140,200,220,.14);
-  --acc:#5ee6d0; --acc-rgb:94,230,208;
-  --amber:#ffb454; --viola:#a493ff; --rosso:#ff6b6b;
-  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Sora,system-ui,sans-serif;overflow:hidden;overscroll-behavior:none}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-.mono{font-family:Michroma,ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase}
-
-/* sfondo */
-.sfondo{position:fixed;inset:0;pointer-events:none;
-  background:
-   radial-gradient(60% 45% at 50% 38%, rgba(var(--acc-rgb),.13), transparent 70%),
-   radial-gradient(90% 60% at 50% 110%, rgba(60,90,160,.18), transparent 70%);
-  transition:background .6s}
-.griglia{position:fixed;inset:0;pointer-events:none;opacity:.5;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:44px 44px;
-  mask-image:radial-gradient(75% 60% at 50% 40%,#000 0,transparent 75%);-webkit-mask-image:radial-gradient(75% 60% at 50% 40%,#000 0,transparent 75%)}
-
-#app{position:relative;height:100dvh;display:flex;flex-direction:column;padding:calc(var(--sat) + 10px) 18px calc(var(--sab) + 10px);max-width:560px;margin:0 auto}
-
-/* testata */
-header{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.logo{font-size:15px;display:flex;align-items:center;gap:9px}
-.logo i{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc);animation:battito 2.4s infinite}
-@keyframes battito{50%{opacity:.35}}
-.ora{font-size:9.5px;color:var(--dim);text-align:right;line-height:1.7}
-.ora b{display:block;color:var(--ink);font-size:13px;font-weight:400;letter-spacing:.12em}
-.icona{width:38px;height:38px;border:1px solid var(--line);border-radius:12px;display:grid;place-items:center;color:var(--dim)}
-.icona svg{width:17px;height:17px}
-.spie{display:flex;gap:12px;font-size:7.5px;color:var(--dim);margin-top:10px}
-.spie span::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#394450;margin-right:5px;vertical-align:1px}
-.spie .ok::before{background:var(--acc);box-shadow:0 0 6px var(--acc)}
-.spie .ko::before{background:var(--rosso)}
-
-/* nucleo */
-.scena{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.nucleo{position:relative;width:min(74vw,330px);aspect-ratio:1;display:grid;place-items:center;touch-action:manipulation}
-.nucleo canvas{position:absolute;inset:-12%;width:124%;height:124%}
-.anello{position:absolute;inset:4%;border-radius:50%;border:1px solid rgba(var(--acc-rgb),.22);transition:border-color .5s}
-.anello.b{inset:-5%;border-style:dashed;border-color:rgba(var(--acc-rgb),.12);animation:gira 60s linear infinite}
-.anello.c{inset:13%;border-color:transparent;border-top-color:rgba(var(--acc-rgb),.55);border-bottom-color:rgba(var(--acc-rgb),.18);animation:gira 9s linear infinite reverse}
-@keyframes gira{to{transform:rotate(360deg)}}
-.stato{margin-top:6px;font-size:9px;color:rgb(var(--acc-rgb));height:16px;transition:color .4s}
-
-/* testo */
-.parlato{width:100%;min-height:118px;max-height:30dvh;overflow-y:auto;text-align:center;padding:6px 4px 0;scrollbar-width:none}
-.parlato::-webkit-scrollbar{display:none}
-.tu{font-size:13px;color:var(--dim);min-height:18px;margin-bottom:8px;font-weight:300}
-.tu::before{content:"› "}
-.tu:empty::before{content:""}
-.argo{font-size:18px;line-height:1.45;font-weight:300;white-space:pre-line}
-.argo .cursore{display:inline-block;width:8px;height:1em;background:var(--acc);vertical-align:-2px;margin-left:3px;animation:battito 1s infinite}
-
-/* comandi */
-.rapidi{display:flex;gap:8px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:none;margin:0 -18px;padding-left:18px;padding-right:18px}
-.rapidi::-webkit-scrollbar{display:none}
-.rapidi button{flex:none;font-size:8.5px;padding:11px 14px;border:1px solid var(--line);border-radius:999px;color:#b9c6cf;background:rgba(255,255,255,.025);backdrop-filter:blur(6px)}
-.rapidi button:active{border-color:var(--acc);color:var(--acc)}
-.barra{display:flex;gap:8px;align-items:center}
-.barra input{flex:1;min-width:0;height:48px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--ink);padding:0 16px;font:300 15px Sora,sans-serif;outline:none}
-.barra input:focus{border-color:rgba(var(--acc-rgb),.6)}
-.barra input::placeholder{color:#55626d}
-.barra .icona{height:48px;width:48px;border-radius:14px}
-.barra .icona.on{color:var(--bg);background:var(--acc);border-color:var(--acc)}
-
-/* schede */
-.velo{position:fixed;inset:0;background:rgba(2,4,8,.6);opacity:0;pointer-events:none;transition:opacity .3s;z-index:5}
-.foglio{position:fixed;left:0;right:0;bottom:0;z-index:6;max-width:560px;margin:0 auto;max-height:82dvh;overflow-y:auto;
-  background:linear-gradient(180deg,#0b111a,#070b12);border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;
-  padding:10px 18px calc(var(--sab) + 22px);transform:translateY(105%);transition:transform .38s cubic-bezier(.2,.8,.2,1)}
-.foglio.su{transform:none}.aperto .velo{opacity:1;pointer-events:auto}
-.maniglia{width:38px;height:4px;border-radius:4px;background:#2a3542;margin:0 auto 14px}
-.foglio h2{font:400 9px Michroma,monospace;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin:18px 0 10px;display:flex;justify-content:space-between}
-.foglio h2 small{color:var(--dim);font-size:8px}
-.carta{border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,.02);display:flex;gap:12px;align-items:center}
-.carta .giorno{flex:none;width:46px;text-align:center;font:400 8px Michroma,monospace;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
-.carta .giorno b{display:block;font-size:19px;color:var(--ink);letter-spacing:0;font-weight:400;margin-top:2px}
-.carta .corpo{flex:1;min-width:0;font-size:14px;line-height:1.35}
-.carta .corpo small{display:block;color:var(--dim);font-size:11.5px;margin-top:3px;font-weight:300}
-.carta .corpo em{font-style:normal;color:var(--amber)}
-.etichetta{font:400 7px Michroma,monospace;letter-spacing:.14em;text-transform:uppercase;padding:3px 7px;border-radius:6px;border:1px solid currentColor;color:var(--acc);margin-right:6px}
-.etichetta.pu{color:var(--viola)} .etichetta.critico{color:var(--rosso)}
-.spunta{flex:none;width:26px;height:26px;border-radius:9px;border:1.5px solid #3a4756}
-.spunta:active{background:var(--acc);border-color:var(--acc)}
-.vuoto{color:var(--dim);font-size:13px;font-weight:300;padding:6px 2px 10px;line-height:1.5}
-.riga{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
-.riga small{display:block;color:var(--dim);font-size:11.5px;font-weight:300;margin-top:2px}
-.riga select,.riga input[type=range]{background:#0e1620;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px;max-width:170px;font:inherit;font-size:13px}
-.leva{flex:none;width:48px;height:28px;border-radius:99px;background:#1a2430;position:relative;transition:background .2s}
-.leva::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#7d8b97;transition:.2s}
-.leva.on{background:rgba(var(--acc-rgb),.35)}.leva.on::after{left:23px;background:var(--acc)}
-.testo-btn{font:400 8.5px Michroma,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding:14px 0}
-
-/* blocco */
-#blocco{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:30px}
-#blocco h1{font:400 26px Michroma,monospace;letter-spacing:.4em;margin:0;padding-left:.4em}
-#blocco p{color:var(--dim);font-size:9px;margin:0}
-#blocco input{width:230px;height:54px;text-align:center;font:400 20px Sora;letter-spacing:.3em;color:var(--ink);background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;outline:none}
-#blocco input:focus{border-color:var(--acc)}
-#blocco .err{color:var(--rosso);min-height:14px}
-#blocco button{font-size:10px;padding:16px 34px;border:1px solid var(--acc);color:var(--acc);border-radius:99px}
-.nascosto{display:none!important}
-
-/* stati */
-body[data-stato=ascolto]{--acc:#ffb454;--acc-rgb:255,180,84}
-body[data-stato=penso]{--acc:#a493ff;--acc-rgb:164,147,255}
-body[data-stato=errore]{--acc:#ff6b6b;--acc-rgb:255,107,107}
-@media (prefers-reduced-motion:reduce){.anello,.logo i{animation:none}}
+:root{--line:#2a3970;--panel:#121a33;--panel2:#18224a;--ink:#e9f0ff;--dim:#8a97c4;--cyan:#5ee6d0;--px:Silkscreen,monospace}
+*{box-sizing:border-box}
+html,body{margin:0;background:#070b18;color:var(--ink);font-family:VT323,monospace;font-size:20px;line-height:1.15}
+.wrap{max-width:620px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 10px) 10px calc(env(safe-area-inset-bottom,0px) + 24px)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.top h1{font:700 15px var(--px);margin:0;letter-spacing:1px}.top h1 span{color:var(--cyan)}
+.top .ora{font:400 11px var(--px);color:var(--dim)}
+canvas{display:block;width:100%;aspect-ratio:240/336;border:2px solid var(--line);box-shadow:0 4px 0 #03050c;cursor:pointer;touch-action:manipulation}
+.box{border:2px solid var(--line);background:var(--panel);box-shadow:0 4px 0 #03050c;margin-top:12px}
+.box.argo{border-color:var(--cyan)}
+.box .head{padding:6px 8px;font:700 11px var(--px);background:var(--panel2);border-bottom:2px solid var(--line)}
+.box.argo .head{color:var(--cyan);border-color:var(--cyan)}
+.corpo{padding:10px 12px}
+.msg{font-size:22px;white-space:pre-line}
+ol{margin:8px 0 0;padding-left:28px}li{margin:3px 0}
+.agg{color:var(--dim);font-size:17px;margin-top:8px}
+.voce{display:flex;gap:8px;padding:7px 10px;border-bottom:1px dashed var(--line);font-size:19px}
+.voce:last-child{border-bottom:0}
+.voce b{font:400 10px var(--px);color:var(--cyan);flex:none;width:78px;padding-top:4px}
+.voce time{color:var(--dim);font-size:16px}
+.vuoto{padding:10px;color:var(--dim)}
+.velo{position:fixed;inset:0;background:rgba(3,5,12,.7);display:none;z-index:5}
+.scheda{position:fixed;left:0;right:0;bottom:0;max-width:620px;margin:0 auto;max-height:80vh;overflow:auto;z-index:6;background:var(--panel);border:2px solid var(--cyan);border-bottom:0;padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateY(105%);transition:transform .25s steps(6)}
+.aperta .velo{display:block}.aperta .scheda{transform:none}
+.scheda h2{font:700 15px var(--px);margin:0 0 2px;display:flex;justify-content:space-between;align-items:center}
+.scheda .x{font:700 14px var(--px);color:var(--dim);padding:4px 8px;border:2px solid var(--line)}
+.scheda .sub{color:var(--dim)}
+.scheda h3{font:400 11px var(--px);color:var(--cyan);margin:14px 0 4px}
+.testo{white-space:pre-line;font-size:21px}
+.nota{color:var(--dim);font-size:16px;margin-top:14px}
 </style>
 </head>
-<body data-stato="pronto">
-<div class="sfondo"></div><div class="griglia"></div>
+<body>
+<div class="wrap">
+  <div class="top"><h1><span>ARGO</span> HQ</h1><div class="ora" id="ora"></div></div>
+  <canvas id="c" aria-label="Ufficio di ARGO con gli agenti al lavoro"></canvas>
 
-<div id="blocco">
-  <h1>ARGO</h1>
-  <p class="mono">Accesso riservato</p>
-  <input id="pin" type="password" autocomplete="current-password" placeholder="PIN" enterkeyhint="go">
-  <p class="mono err" id="pinErr"></p>
-  <button class="mono" id="pinOk">Sblocca</button>
-</div>
-
-<div id="app">
-  <header>
-    <div>
-      <div class="logo mono"><i></i>ARGO</div>
-      <div class="spie mono"><span id="sCervello">Cervello</span><span id="sDb">Dati</span><span id="sVoce">Voce</span></div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <div class="ora mono"><b id="orologio">--:--</b><span id="data"></span></div>
-      <button class="icona" id="apriImp" aria-label="Impostazioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
-    </div>
-  </header>
-
-  <div class="scena">
-    <button class="nucleo" id="nucleo" aria-label="Parla con ARGO">
-      <span class="anello b"></span><span class="anello"></span><span class="anello c"></span>
-      <canvas id="tela"></canvas>
-    </button>
-    <div class="stato mono" id="stato">Tocca e parla</div>
-  </div>
-
-  <div class="parlato" id="parlato">
-    <div class="tu" id="tu"></div>
-    <div class="argo" id="argo"></div>
-  </div>
-
-  <div class="rapidi" id="rapidi">
-    <button class="mono" data-q="Protocollo mattina">Mattina</button>
-    <button class="mono" data-q="Cosa ho in agenda oggi e domani?">Agenda</button>
-    <button class="mono" data-q="Quali sono le prossime partite del Tavernola?">Partite</button>
-    <button class="mono" data-q="Quali promemoria ho aperti?">Promemoria</button>
-    <button class="mono" data-q="Riepilogo dei lead e delle trattative aperte">Lead</button>
-    <button class="mono" data-q="Check volo">Check volo</button>
-    <button class="mono" data-q="Modalità campo">Campo</button>
-    <button class="mono" data-q="Debrief: ti racconto la giornata">Debrief</button>
-  </div>
-
-  <form class="barra" id="modulo">
-    <button type="button" class="icona" id="apriSchede" aria-label="Schede"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="6" rx="2"/><rect x="4" y="14" width="16" height="6" rx="2"/></svg></button>
-    <input id="campo" placeholder="Scrivi ad ARGO" autocomplete="off" enterkeyhint="send">
-    <button type="button" class="icona" id="mani" aria-label="Mani libere"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12c2-6 4-6 6 0s4 6 6 0 3-4 4-2"/></svg></button>
-  </form>
+  <section class="box argo">
+    <div class="head">ARGO</div>
+    <div class="corpo"><div class="msg" id="argoMsg">Collegamento con il quartier generale…</div><ol id="argoPri"></ol><div class="agg" id="argoAgg"></div></div>
+  </section>
+  <section class="box">
+    <div class="head">Registro attività</div>
+    <div id="registro"><div class="vuoto">Nessun rapporto ancora.</div></div>
+  </section>
 </div>
 
 <div class="velo" id="velo"></div>
-<section class="foglio" id="schede">
-  <div class="maniglia"></div>
-  <h2>Prossime partite <small>US Tavernola</small></h2><div id="lPartite"></div>
-  <h2>Promemoria <small id="nProm"></small></h2><div id="lProm"></div>
-</section>
-<section class="foglio" id="imp">
-  <div class="maniglia"></div>
-  <h2>Voce</h2>
-  <div class="riga"><div>Risposta a voce</div><button class="leva" id="oVoce"></button></div>
-  <div class="riga"><div>Voce</div><select id="oQuale"></select></div>
-  <div class="riga"><div>Velocità</div><input type="range" id="oVel" min="0.8" max="1.4" step="0.05"></div>
-  <h2>Ascolto</h2>
-  <div class="riga"><div>Mani libere<small>Ad app aperta, di' «ARGO» e poi la richiesta</small></div><button class="leva" id="oMani"></button></div>
-  <div class="riga"><div>Conversazione continua<small>Dopo la risposta torna in ascolto</small></div><button class="leva" id="oCont"></button></div>
-  <h2>Accesso</h2>
-  <button class="testo-btn" id="esci">Blocca ed esci</button>
+<section class="scheda" id="scheda">
+  <h2><span id="sNome"></span><button class="x" id="sChiudi">X</button></h2>
+  <div class="sub" id="sRuolo"></div>
+  <h3>Stato</h3><div class="testo" id="sStato"></div>
+  <h3>Ultimo rapporto</h3><div class="testo" id="sRapporto"></div>
+  <h3>Prossimo turno</h3><div class="testo" id="sProssimo"></div>
+  <div class="nota">Per parlarne o dare ordini, apri il progetto ARGO su Claude.</div>
 </section>
 
 <script>
 (() => {
 const $ = (id) => document.getElementById(id);
-const mem = {
-  get(k, d) { try { const v = localStorage.getItem('argo_' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
-  set(k, v) { try { localStorage.setItem('argo_' + k, JSON.stringify(v)); } catch {} },
-};
-let pin = mem.get('pin', '');
-const opz = { voce: mem.get('voce', true), quale: mem.get('quale', ''), vel: mem.get('vel', 1.05), mani: false, cont: mem.get('cont', false) };
-let stato = 'pronto', storia = [], energia = 0;
-
-const ETI = { pronto: 'Tocca e parla', ascolto: 'In ascolto', penso: 'Elaboro', parlo: 'ARGO', errore: 'Errore', attesa: 'Di’ «ARGO»' };
-function setStato(s, testo) {
-  stato = s;
-  document.body.dataset.stato = s === 'attesa' ? 'pronto' : s;
-  $('stato').textContent = testo || ETI[s] || '';
-}
-
-/* ---------- nucleo: sfera di particelle ---------- */
-const tela = $('tela'), cx = tela.getContext('2d');
-const N = 900, punti = [];
-for (let i = 0; i < N; i++) {
-  const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), t = i * 2.399963;
-  punti.push({ x: Math.cos(t) * r, y, z: Math.sin(t) * r, f: Math.random() * 6.28 });
-}
-let W = 0, H = 0, DPR = 1, rot = 0;
+const W = 240, H = 336;
+const cv = $('c'), c = cv.getContext('2d');
 function misura() {
-  DPR = Math.min(devicePixelRatio || 1, 2.5);
-  const b = tela.getBoundingClientRect();
-  W = tela.width = b.width * DPR; H = tela.height = b.height * DPR;
+  const s = Math.max(2, Math.ceil(cv.clientWidth * (devicePixelRatio || 1) / W));
+  cv.width = W * s; cv.height = H * s; c.setTransform(s, 0, 0, s, 0, 0); c.imageSmoothingEnabled = false;
 }
-addEventListener('resize', misura);
-const fermo = matchMedia('(prefers-reduced-motion:reduce)').matches;
-function disegna(ms) {
-  const t = ms / 1000;
-  const bersaglio = { pronto: .08, attesa: .12, ascolto: .55, penso: .35, parlo: .7, errore: .1 }[stato] || .1;
-  energia += (bersaglio - energia) * .06;
-  const rgb = getComputedStyle(document.body).getPropertyValue('--acc-rgb').trim() || '94,230,208';
-  rot += fermo ? 0 : (.0025 + energia * .012);
-  cx.clearRect(0, 0, W, H);
-  const R = Math.min(W, H) * .33, cxm = W / 2, cym = H / 2;
-  const g = cx.createRadialGradient(cxm, cym, 0, cxm, cym, R * 1.25);
-  g.addColorStop(0, `rgba(${rgb},${.16 + energia * .22})`); g.addColorStop(1, `rgba(${rgb},0)`);
-  cx.fillStyle = g; cx.beginPath(); cx.arc(cxm, cym, R * 1.25, 0, 6.29); cx.fill();
-  const c = Math.cos(rot), s = Math.sin(rot), c2 = Math.cos(.38), s2 = Math.sin(.38);
-  for (const p of punti) {
-    const onda = stato === 'penso'
-      ? Math.sin(t * 3 + p.y * 6) * .09
-      : Math.sin(t * (1.2 + energia * 5) + p.f) * (.02 + energia * .16) + Math.sin(t * 7 + p.f * 3) * energia * .05;
-    const k = 1 + onda;
-    let x = p.x * c - p.z * s, z = p.x * s + p.z * c, y = p.y;
-    const y2 = y * c2 - z * s2; z = y * s2 + z * c2; y = y2;
-    const pr = 1 / (1.9 - z * .55), px = cxm + x * k * R * pr * 1.6, py = cym + y * k * R * pr * 1.6;
-    const a = (.26 + (z + 1) * .42) * (.75 + energia * .5);
-    cx.fillStyle = `rgba(${rgb},${Math.min(a, 1)})`;
-    const d = (1 + (z + 1) * .9) * DPR * (.75 + energia * .5);
-    cx.fillRect(px - d / 2, py - d / 2, d, d);
-  }
-  requestAnimationFrame(disegna);
-}
+addEventListener('resize', misura); misura();
 
-/* ---------- voce in uscita ---------- */
-const sint = window.speechSynthesis;
-let voci = [], sbloccata = false;
-function caricaVoci() {
-  if (!sint) return;
-  voci = sint.getVoices().filter((v) => /^it/i.test(v.lang));
-  const sel = $('oQuale'); sel.innerHTML = '';
-  voci.forEach((v) => { const o = document.createElement('option'); o.value = v.name; o.textContent = v.name.replace(/\s*\(.*\)/, ''); sel.appendChild(o); });
-  if (!opz.quale && voci.length) opz.quale = (voci.find((v) => /premium|enhanced|migliorat|siri/i.test(v.name)) || voci[0]).name;
-  sel.value = opz.quale;
-  $('sVoce').className = sint ? 'ok' : 'ko';
-}
-if (sint) { caricaVoci(); sint.onvoiceschanged = caricaVoci; }
-function sblocca() { // iOS: la sintesi parte solo dopo un tocco
-  if (sbloccata || !sint) return; sbloccata = true;
-  const u = new SpeechSynthesisUtterance(' '); u.volume = 0; sint.speak(u);
-}
-addEventListener('pointerdown', sblocca, { passive: true });
-function parla(testo) {
-  return new Promise((fine) => {
-    if (!sint || !opz.voce || !testo) return fine();
-    sint.cancel();
-    const frasi = testo.match(/[^.!?\n]+[.!?]*\s*/g) || [testo];
-    let i = 0;
-    const guardia = setTimeout(fine, 90000);
-    const prossima = () => {
-      if (i >= frasi.length) { clearTimeout(guardia); return fine(); }
-      const u = new SpeechSynthesisUtterance(frasi[i++].trim());
-      u.lang = 'it-IT'; u.rate = opz.vel;
-      const v = voci.find((x) => x.name === opz.quale); if (v) u.voice = v;
-      u.onend = prossima; u.onerror = prossima;
-      sint.speak(u);
-    };
-    prossima();
-  });
-}
-function zitto() { if (sint) sint.cancel(); }
+/* ---------- il team ---------- */
+const TEAM = {
+  segretaria: { nome: 'Penelope', ruolo: 'Segretaria · tesse la tua agenda e non perde un filo', turno: 'Ogni giorno alle 6:38', zona: [14, 78, 100, 74] },
+  mister:     { nome: 'Chirone', ruolo: 'Mister · allenava Giasone, ora prepara il Tavernola', turno: 'Venerdì alle 13:17', zona: [148, 78, 90, 86] },
+  postino:    { nome: 'Ermes', ruolo: 'Postino · messaggero degli dei, oggi del tuo Gmail', turno: 'Ogni giorno alle 8:07 e alle 14:07', zona: [4, 164, 104, 72] },
+  cacciatore: { nome: 'Orione', ruolo: 'Cacciatore · punta le aziende NLT e non molla la preda', turno: 'Feriali alle 7:52', zona: [140, 164, 96, 72] },
+  penna:      { nome: 'Omero', ruolo: 'Penna · scrive mail che i clienti leggono fino in fondo', arrivo: true, zona: [4, 248, 58, 80] },
+  analista:   { nome: 'Pitagora', ruolo: 'Analista · i preventivi NLT li fa tornare al centesimo', arrivo: true, zona: [62, 248, 58, 80] },
+  social:     { nome: 'Eco', ruolo: 'Social · quello che dici lo fa rimbalzare ovunque', arrivo: true, zona: [120, 248, 58, 80] },
+  pilota:     { nome: 'Icaro', ruolo: 'Pilota · stavolta il meteo lo controlla prima', arrivo: true, zona: [178, 248, 58, 80] },
+};
+const dati = {};
+const statoDi = (id) => TEAM[id].arrivo ? 'arrivo' : ((dati[id] && dati[id].stato) || 'pausa');
+const SPIA = { lavoro: '#4ade80', pausa: '#fbbf24', errore: '#f87171', arrivo: '#64748b' };
 
-/* ---------- voce in ingresso ---------- */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let ric = null, attivo = false, buf = '', armato = false, timer = null;
-function bip(f = 880) {
-  try {
-    const A = bip.c || (bip.c = new (window.AudioContext || window.webkitAudioContext)());
-    const o = A.createOscillator(), g = A.createGain();
-    o.frequency.value = f; o.connect(g); g.connect(A.destination);
-    g.gain.setValueAtTime(.0001, A.currentTime); g.gain.exponentialRampToValueAtTime(.12, A.currentTime + .02); g.gain.exponentialRampToValueAtTime(.0001, A.currentTime + .22);
-    o.start(); o.stop(A.currentTime + .25);
-  } catch {}
+/* ---------- primitive ---------- */
+function R(x, y, w, h, col, a) { if (a != null) c.globalAlpha = a; c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), w, h); if (a != null) c.globalAlpha = 1; }
+function disco(cx, cy, r, col, a) {
+  c.globalAlpha = a; c.fillStyle = col;
+  for (let dy = -r; dy <= r; dy++) { const w = Math.floor(Math.sqrt(r * r - dy * dy)); c.fillRect(Math.round(cx - w), Math.round(cy + dy), 2 * w + 1, 1); }
+  c.globalAlpha = 1;
 }
-function ascolta() {
-  if (!SR) { setStato('errore', 'Microfono non supportato'); $('argo').textContent = 'Questo browser non supporta il riconoscimento vocale. Apri ARGO in Safari oppure usa la dettatura della tastiera.'; return; }
-  if (attivo) return;
-  zitto();
-  ric = new SR(); ric.lang = 'it-IT'; ric.interimResults = true; ric.continuous = opz.mani; ric.maxAlternatives = 1;
-  buf = ''; attivo = true;
-  ric.onstart = () => { if (opz.mani && !armato) setStato('attesa'); else { setStato('ascolto'); if (opz.mani) { clearTimeout(timer); timer = setTimeout(() => chiudi(''), 7000); } } };
-  ric.onresult = (e) => {
-    let t = '';
-    for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript + ' ';
-    buf = t.trim();
-    let comando = buf;
-    if (opz.mani && !armato) {
-      const m = buf.match(/(?:^|\s)(?:ehi\s+|hey\s+)?argo\b[\s,.!?]*(.*)$/i);
-      if (!m) return;               // parola di attivazione non ancora detta
-      comando = m[1].trim();
-      if (stato !== 'ascolto') { setStato('ascolto'); bip(); }
+function bagliore(cx, cy, r, col, a) { disco(cx, cy, r, col, a * .35); disco(cx, cy, Math.round(r * .66), col, a * .45); disco(cx, cy, Math.round(r * .33), col, a * .6); }
+function spr(righe, pal, x, y) {
+  x = Math.round(x); y = Math.round(y);
+  for (let j = 0; j < righe.length; j++) { const r = righe[j]; for (let i = 0; i < r.length; i++) { const col = pal[r[i]]; if (col) { c.fillStyle = col; c.fillRect(x + i, y + j, 1, 1); } } }
+}
+function linea(x0, y0, x1, y1, col, sp) {
+  const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1);
+  for (let i = 0; i <= n; i++) R(x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n, sp || 1, sp || 1, col);
+}
+const rnd = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+
+/* ---------- scritte 3x5 ---------- */
+const GL = { A: '010101111101101', C: '011100100100011', E: '111100110100111', G: '011100101101011', H: '101101111101101', I: '111010010010111', L: '100100100100111', M: '101111111101101', N: '110101101101101', O: '010101101101010', P: '110101110100100', R: '110101110101101', S: '011100010001110', T: '111010010010010', ' ': '000000000000000' };
+function scritta(t, x, y, col) { for (const ch of t) { const g = GL[ch] || GL[' ']; for (let k = 0; k < 15; k++) if (g[k] === '1') R(x + k % 3, y + Math.floor(k / 3), 1, 1, col); x += 4; } }
+function etichetta(id, cx, y) {
+  const t = TEAM[id].nome.toUpperCase(), w = t.length * 4 + 8, x = Math.round(cx - w / 2);
+  R(x, y, w, 9, '#070b18', .85); R(x, y, w, 1, '#2a3970'); R(x, y + 8, w, 1, '#2a3970');
+  R(x + 2, y + 3, 3, 3, SPIA[statoDi(id)]); scritta(t, x + 7, y + 2, TEAM[id].arrivo ? '#8a97c4' : '#e9f0ff');
+}
+function zzz(x, y, t) { const z = Math.floor(t / 450) % 3; for (let k = 0; k <= z; k++) { R(x + k * 3, y - k * 3, 2, 1, '#cbd5e1'); R(x + 1 + k * 3, y + 1 - k * 3, 1, 1, '#cbd5e1'); R(x + k * 3, y + 2 - k * 3, 2, 1, '#cbd5e1'); } }
+
+/* ---------- sprite ---------- */
+const TESTA_SEG = ['...OOOOOO...', '..OHHHHHHO..', '.OHHHHHHHHO.', '.OHHhSSSHHO.', '.OHSSSSSSHO.', '.OHSESSESHO.', '.OHSSSSSSHO.', '.OHSsMMsSHO.', '.OHOSSSSOHO.', '.OHOOssOOHO.'];
+const BUSTO_SEG = ['..OHCWWWWCHO..', '.OHCCCWWCCCHO.', 'OCCCCCCCCCCCCO', 'OCCCCCCCCCCCCO', 'OCcCCCCCCCCcCO', 'OCcCCCCCCCCcCO', 'OCcCCCCCCCCcCO'];
+const TESTA_CAP_F = ['...OOOOOO...', '..ORRRRRRO..', '.ORRRWWRRRO.', '.ORRRRRRRRO.', 'OrrrrrrrrrrO', '.OHSSSSSSHO.', '.OSSESSESSO.', '.OSSSSSSSSO.', '.OSBsMMsBSO.', '..OBBBBBBO..'];
+const TESTA_CAP_R = ['...OOOOOO...', '..ORRRRRRO..', '.ORRRRRRRRO.', '.ORRRRRRRRO.', '.OrrrrrrrrO.', '.OHHHHHHHHO.', '.OHHHHHHHHO.', '.OShhhhhhSO.', '..OSSSSSSO..', '...OssssO...'];
+const BUSTO_F = ['..OORRWWRROO..', '.ORRRRRRRRRRO.', 'ORWORRRRRROWRO', 'ORWORRRRYROWRO', 'ORWORRRRRROWRO', 'ORWORRRRRROWRO', 'OSSOrrrrrrOSSO'];
+const BUSTO_SED = ['..OORRWWRROO..', '.ORRRRRRRRRRO.', 'ORWORRRRRROWRO', 'ORWORRRRYROWRO', 'ORWORRRRRROWRO', 'ORWORRRRRROWRO', 'ORWORRRRRROWRO'];
+const BUSTO_R = ['..OORRRRRROO..', '.ORRRRRRRRRRO.', '...ORRRRRROWRO', '...ORRWWRROWRO', '...ORRRRRROWRO', '...ORRRRRROWRO', '...OrrrrrrOSSO'];
+const GAMBE = ['...OPPPPPPO...', '...OPPOOPPO...', '...OPPOOPPO...', '...OPPOOPPO...', '...OPPOOPPO...'];
+const PAL_SEG = { O: '#1a1226', H: '#8a4a22', h: '#6b3615', S: '#f3c9a5', s: '#d9a27e', E: '#22172b', M: '#c2504a', C: '#e8559a', c: '#c23a7e', W: '#fdf2f8' };
+const PAL_MIS = { O: '#1a1226', R: '#d92d2d', r: '#a81f1f', W: '#f8fafc', H: '#5a3a1a', h: '#3f2710', S: '#eebb8b', s: '#cf9a6b', E: '#22172b', M: '#9a4a3a', B: '#b98a62', P: '#1e2a4a', Y: '#facc15' };
+const PAL_ERM = { O: '#141a2e', R: '#2f5fc4', r: '#1f4391', W: '#facc15', H: '#aab0bd', h: '#8a909d', S: '#f1c9a0', s: '#d4a57c', E: '#22172b', M: '#a85a4a', B: '#f1c9a0', Y: '#facc15' };
+const PAL_ORI = { O: '#17150f', R: '#8a6a3a', r: '#5f4722', W: '#e4d3a0', H: '#2e2216', h: '#1f170e', S: '#d9a57a', s: '#b98558', E: '#22172b', M: '#7a3f30', B: '#3b2a1a', Y: '#e4d3a0' };
+const GIACCA_ORI = { R: '#5f7a2e', r: '#46591f', W: '#d9c48a', Y: '#d9c48a' };
+
+/* ---------- arredo ---------- */
+function ombra(x, y, w) { R(x + 2, y, w - 4, 3, '#000', .22); R(x, y + 1, w, 1, '#000', .12); }
+function scrivania(x, y, w, legno, scuro) {
+  ombra(x - 1, y + 27, w + 2);
+  R(x, y, w, 14, legno); R(x, y, w, 1, '#ffffff', .22); R(x, y + 13, w, 1, '#000', .25);
+  R(x, y + 14, w, 12, scuro); R(x, y + 14, w, 1, '#000', .2);
+  const cw = Math.min(22, Math.floor(w / 2) - 5);
+  R(x + 4, y + 17, cw, 7, '#000', .16); R(x + 4 + Math.floor(cw / 2) - 2, y + 20, 4, 1, '#d6b98a');
+  R(x + w - 4 - cw, y + 17, cw, 7, '#000', .16); R(x + w - 4 - Math.floor(cw / 2) - 2, y + 20, 4, 1, '#d6b98a');
+  R(x + 1, y + 26, 3, 3, '#3b2412'); R(x + w - 4, y + 26, 3, 3, '#3b2412');
+}
+function pianta(x, y) {
+  ombra(x - 1, y + 13, 12); R(x + 1, y + 6, 8, 8, '#8a4b25'); R(x + 1, y + 6, 8, 2, '#a65f33');
+  R(x + 2, y - 6, 6, 12, '#1f8a4c'); R(x, y - 3, 3, 6, '#187a41'); R(x + 7, y - 4, 3, 7, '#26a35b'); R(x + 3, y - 9, 3, 4, '#2fbf6b'); R(x + 5, y - 2, 1, 6, '#0f5a2e');
+}
+function schedario(x, y) {
+  ombra(x - 1, y + 29, 20); R(x, y, 18, 30, '#56637f'); R(x, y, 18, 2, '#7a88a8'); R(x + 17, y, 1, 30, '#3b4660');
+  for (let k = 0; k < 3; k++) { R(x + 2, y + 4 + k * 9, 14, 7, '#465270'); R(x + 7, y + 7 + k * 9, 4, 1, '#c9d3ea'); }
+}
+function libreria(x, y) {
+  ombra(x - 1, y + 35, 38); R(x, y, 36, 36, '#5b3a1f'); R(x, y, 36, 2, '#7d5430');
+  const col = ['#d92d2d', '#2f6fd9', '#e9b23a', '#2fa36b', '#8b5cf6', '#e8e2d2', '#d9682d'];
+  for (let r = 0; r < 3; r++) { R(x + 2, y + 3 + r * 11, 32, 9, '#2c1b0d'); let px = x + 3; for (let k = 0; k < 9 && px < x + 32; k++) { const w = 2 + Math.floor(rnd(r * 9 + k) * 2), h = 6 + Math.floor(rnd(r * 5 + k * 3) * 3); R(px, y + 12 + r * 11 - h, w, h, col[(k + r * 2) % col.length]); px += w + 1; } }
+}
+function boccione(x, y) {
+  ombra(x - 1, y + 27, 12); R(x, y + 10, 10, 18, '#dfe6f2'); R(x, y + 10, 10, 2, '#fff'); R(x + 3, y + 15, 2, 2, '#3b82f6'); R(x + 6, y + 15, 2, 2, '#ef4444');
+  R(x + 1, y, 8, 10, '#7cc4f5', .85); R(x + 2, y + 1, 2, 6, '#fff', .5); R(x + 3, y - 2, 4, 2, '#9fd6fb');
+}
+function scatola(x, y, w, h) { R(x, y, w, h, '#b98a52'); R(x, y, w, 2, '#d3a76e'); R(x + Math.floor(w / 2) - 1, y, 2, h, '#8a6233', .7); R(x + w - 1, y, 1, h, '#000', .2); }
+function fogli() { [[118, 150], [128, 236], [112, 246], [226, 240], [6, 238], [132, 196], [104, 100]].forEach(([x, y], i) => { R(x, y, 6, 4, '#e8ecf5', .9); R(x + 1, y + 1, 4, 1, '#9aa5c4'); if (i % 2) R(x + 4, y + 3, 5, 3, '#cfd6e6', .8); }); }
+function busta(x, y, col) { R(x, y, 6, 4, '#f4f6fb'); R(x, y, 6, 1, '#c9d0e2'); R(x + 2, y + 1, 2, 1, '#c9d0e2'); R(x + 4, y + 2, 1, 1, col || '#ef4444'); }
+function monitor(mx, dy, acceso) { R(mx + 8, dy + 1, 6, 3, '#1b2137'); R(mx + 10, dy - 2, 2, 4, '#2a3352'); R(mx, dy - 20, 22, 18, '#1b2137'); R(mx + 1, dy - 19, 20, 15, acceso ? '#06302c' : '#0c111f'); if (!acceso) R(mx + 10, dy - 12, 2, 2, '#2a3352'); }
+function sedia(px, ty) { R(px - 3, ty + 8, 20, 18, '#27335c'); R(px - 3, ty + 8, 20, 2, '#3a4a7e'); R(px - 3, ty + 8, 1, 18, '#1a2342'); }
+
+/* ---------- finestre ---------- */
+function finestra(x, y, w, h, seme, t, luna) {
+  R(x - 2, y - 2, w + 4, h + 5, '#4d5a86'); R(x - 2, y + h + 2, w + 4, 2, '#6b79a8');
+  R(x, y, w, h, '#0a1024'); R(x, y, w, Math.floor(h / 2), '#0d1630'); R(x, y, w, Math.floor(h / 4), '#111d3d');
+  for (let k = 0; k < 14; k++) { const sx = x + Math.floor(rnd(seme + k) * w), sy = y + Math.floor(rnd(seme + k * 7) * h * .45); if ((Math.floor(t / 900) + k) % 5) R(sx, sy, 1, 1, '#c7d4ff', .7); }
+  if (luna) { disco(x + w - 12, y + 9, 4, '#f4f0d0', 1); disco(x + w - 10, y + 8, 3, '#0d1630', 1); }
+  let bx = x;
+  for (let k = 0; bx < x + w; k++) {
+    const bw = 6 + Math.floor(rnd(seme * 3 + k) * 7), bh = 10 + Math.floor(rnd(seme * 5 + k * 2) * (h - 16)), ww = Math.min(bw, x + w - bx);
+    R(bx, y + h - bh, ww, bh, k % 2 ? '#141c3a' : '#182246');
+    for (let fy = y + h - bh + 2; fy < y + h - 1; fy += 3) for (let fx = bx + 1; fx < bx + ww - 1; fx += 2) {
+      const id = seme * 100 + fx * 13 + fy * 7;
+      if (rnd(id) > .55 && rnd(id + Math.floor(t / 4000 + rnd(id) * 9)) > .25) R(fx, fy, 1, 1, rnd(id * 2) > .3 ? '#f6d365' : '#9ad7ff');
     }
-    $('tu').textContent = comando; $('argo').textContent = '';
-    clearTimeout(timer);
-    timer = setTimeout(() => chiudi(comando), comando ? 1500 : 4000);
-  };
-  ric.onerror = (e) => {
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { opz.mani = false; aggiornaLeve(); setStato('errore', 'Microfono negato'); $('argo').textContent = 'Consenti microfono e riconoscimento vocale nelle impostazioni del browser.'; }
-  };
-  ric.onend = () => {
-    attivo = false;
-    if (stato === 'ascolto' && buf && !opz.mani) return chiudi(buf);
-    if (opz.mani && (stato === 'attesa' || stato === 'ascolto')) return setTimeout(ascolta, 250); // resta in ascolto
-    if (stato === 'ascolto' || stato === 'attesa') setStato('pronto');
-  };
-  try { ric.start(); } catch { attivo = false; }
-}
-function chiudi(comando) {
-  clearTimeout(timer);
-  const eraArmato = armato; armato = false;
-  if (!comando) { // solo «ARGO»: la prossima frase è la richiesta
-    if (opz.mani && !eraArmato) { armato = true; ferma(); setTimeout(ascolta, 200); }
-    else { ferma(); setStato(opz.mani ? 'attesa' : 'pronto'); }
-    return;
+    bx += bw;
   }
-  setStato('penso'); ferma(); invia(comando);
+  R(x + Math.floor(w / 2), y, 1, h, '#4d5a86'); R(x, y + Math.floor(h / 2), w, 1, '#4d5a86');
+  R(x, y, w, 1, '#000', .35); R(x + 2, y + 2, 5, 1, '#fff', .12); R(x + 3, y + 4, 3, 1, '#fff', .08);
 }
-function ferma() { try { ric && ric.stop(); } catch {} }
 
-/* ---------- conversazione ---------- */
-let scrivendo = 0;
-function scrivi(testo) {
-  const el = $('argo'), id = ++scrivendo; el.textContent = '';
-  const parole = testo.split(/(\s+)/); let i = 0;
-  (function avanti() {
-    if (id !== scrivendo) return;
-    if (i >= parole.length) return;
-    el.textContent += parole[i++]; $('parlato').scrollTop = 1e6;
-    setTimeout(avanti, 26);
-  })();
+/* ---------- ARGO ---------- */
+function argo(t) {
+  const x = 94, y = 6;
+  R(x - 2, y - 2, 56, 40, '#1b2444'); R(x, y, 52, 36, '#050a18'); R(x, y, 52, 1, '#5ee6d0', .5);
+  scritta('ARGO', x + 3, y + 3, '#5ee6d0');
+  const cx = x + 26, cy = y + 20, p = Math.sin(t / 500);
+  bagliore(cx, cy, 9, '#5ee6d0', .25 + p * .05);
+  for (let a = 0; a < 18; a++) { const an = a / 18 * 6.283 + t / 1400; R(cx + Math.cos(an) * (9 + p), cy + Math.sin(an) * (5 + p * .5), 1, 1, a % 3 ? '#5ee6d0' : '#a78bfa'); }
+  R(cx - 1, cy - 1, 3, 3, '#5ee6d0'); R(cx, cy, 1, 1, '#f0fffb');
+  for (let k = 0; k < 5; k++) { const h = 2 + Math.floor((Math.sin(t / 260 + k * 1.7) * .5 + .5) * 9); R(x + 4 + k * 2, y + 32 - h, 1, h, '#5ee6d0', .8); R(x + 39 + k * 2, y + 32 - (11 - h), 1, 11 - h + 1, '#a78bfa', .8); }
+  ombra(86, 73, 68);
+  R(88, 48, 64, 9, '#2a3558'); R(88, 48, 64, 1, '#55618c'); R(88, 57, 64, 16, '#1c2440'); R(88, 57, 64, 1, '#000', .3);
+  for (let k = 0; k < 14; k++) R(92 + k * 4, 51, 2, 2, (Math.floor(t / 300) + k * 5) % 7 < 4 ? '#5ee6d0' : '#1f6e66');
+  for (let k = 0; k < 6; k++) { R(93 + k * 10, 61, 6, 8, '#0f1630'); R(94 + k * 10, 62 + (Math.floor(t / 400) + k) % 5, 4, 1, k % 2 ? '#4ade80' : '#38bdf8'); }
+  bagliore(120, 80, 22, '#5ee6d0', .10);
+  for (let a = 0; a < 36; a++) { const an = a / 36 * 6.283; if ((a + Math.floor(t / 180)) % 4) R(120 + Math.cos(an) * 20, 176 + Math.sin(an) * 8, 1, 1, '#5ee6d0', .35); }
+  for (let a = 0; a < 20; a++) { const an = a / 20 * 6.283 - t / 2600; R(120 + Math.cos(an) * 13, 176 + Math.sin(an) * 5, 1, 1, '#a78bfa', .3); }
 }
-async function invia(testo) {
-  testo = (testo || '').trim(); if (!testo) return;
-  zitto(); ferma();
-  $('tu').textContent = testo; $('argo').innerHTML = '<span class="cursore"></span>';
-  setStato('penso');
-  let risposta = '', ok = false;
-  try {
-    const r = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json', 'x-argo-pin': pin }, body: JSON.stringify({ text: testo, history: storia.slice(-10) }) });
-    if (r.status === 401) { blocca('PIN non valido'); return; }
-    const j = await r.json().catch(() => ({}));
-    risposta = j.reply || j.error || 'Nessuna risposta.'; ok = r.ok;
-  } catch { risposta = 'Non riesco a raggiungere il server. Controlla la connessione.'; }
-  if (ok) { storia.push({ role: 'user', content: testo }, { role: 'assistant', content: risposta }); storia = storia.slice(-12); }
-  setStato(ok ? 'parlo' : 'errore');
-  scrivi(risposta);
-  if (ok) caricaDati();
-  await parla(risposta);
-  if (stato !== 'parlo' && stato !== 'errore') return; // nel frattempo è partito altro
-  if (opz.mani) { setStato('attesa'); ascolta(); }
-  else if (opz.cont && ok) { ascolta(); }
-  else setStato('pronto');
+
+/* ---------- Penelope, la segretaria ---------- */
+function segretaria(t) {
+  const lav = statoDi('segretaria') === 'lavoro', dx = 22, dy = 118, px = 52, ty = 93;
+  sedia(px, ty);
+  const pal = Object.assign({}, PAL_SEG);
+  if ((Math.floor(t / 2600) % 5 === 0 && t % 2600 < 140) || !lav) pal.E = PAL_SEG.s;
+  const resp = lav ? 0 : Math.round(Math.sin(t / 900) * .5);
+  R(px, ty + 17 + resp, 14, 10, PAL_SEG.C); R(px, ty + 17 + resp, 1, 10, PAL_SEG.O); R(px + 13, ty + 17 + resp, 1, 10, PAL_SEG.O);
+  spr(BUSTO_SEG, pal, px, ty + 10 + resp); spr(TESTA_SEG, pal, px + 1, ty + resp);
+  if (lav) bagliore(px + 9, ty + 6, 5, '#7cf5e2', .10);
+  scrivania(dx, dy, 86, '#a8703c', '#7a4c26');
+  R(dx + 5, dy + 2, 13, 3, '#d92d2d'); R(dx + 5, dy + 2, 13, 1, '#f26b6b'); R(dx + 6, dy - 1, 12, 3, '#2f6fd9'); R(dx + 6, dy - 1, 12, 1, '#6fa0f0'); R(dx + 5, dy - 4, 12, 3, '#e9b23a'); R(dx + 5, dy - 4, 12, 1, '#f6d77c'); R(dx + 15, dy - 4, 1, 9, '#fff', .5);
+  R(dx + 22, dy - 2, 4, 2, '#39425f'); R(dx + 23, dy - 11, 1, 9, '#6b7694'); R(dx + 20, dy - 14, 8, 4, '#e6a93a'); R(dx + 20, dy - 14, 8, 1, '#f6cf6f');
+  if (lav) { R(dx + 21, dy - 10, 6, 1, '#fff3c4'); bagliore(dx + 24, dy + 2, 13, '#ffd77a', .22); }
+  R(px - 4, dy + 4, 22, 6, '#2c3350'); for (let k = 0; k < 9; k++) { R(px - 3 + k * 2.3, dy + 5, 1, 1, '#aab3cf'); R(px - 3 + k * 2.3, dy + 7, 1, 1, '#8b95b5'); }
+  const mx = dx + 58; monitor(mx, dy, lav);
+  if (lav) { const s = Math.floor(t / 200); for (let k = 0; k < 6; k++) R(mx + 2, dy - 18 + k * 2.4, 3 + ((s + k * 5) % 14), 1, k === 2 ? '#fbbf24' : '#5ee6d0'); R(mx + 2 + (s % 16), dy - 5, 2, 1, '#fff'); bagliore(mx + 10, dy - 11, 12, '#5ee6d0', .10); }
+  R(dx + 44, dy + 2, 10, 8, '#eef1f8'); R(dx + 45, dy + 4, 7, 1, '#9aa5c4'); R(dx + 45, dy + 6, 5, 1, '#9aa5c4'); R(dx + 46, dy + 1, 10, 8, '#dfe4ef', .9);
+  R(dx + 80, dy + 3, 4, 5, '#3a4a7e'); R(dx + 80, dy, 1, 3, '#facc15'); R(dx + 82, dy - 1, 1, 4, '#ef4444');
+  if (lav) {
+    const f = Math.floor(t / 110) % 4;
+    R(px + 1, dy - 1, 3, 6, PAL_SEG.c); R(px + 10, dy - 1, 3, 6, PAL_SEG.c);
+    R(px + 1, dy + 4 + (f === 0 ? -1 : 0), 3, 2, PAL_SEG.S); R(px + 10, dy + 4 + (f === 2 ? -1 : 0), 3, 2, PAL_SEG.S);
+  } else {
+    const sorso = (t % 5200) < 1300 ? 1 : 0;
+    R(px + 1, dy - 1, 3, 6, PAL_SEG.c); R(px + 1, dy + 4, 3, 2, PAL_SEG.S);
+    R(px + 12, ty + 15 - sorso * 3, 3, 8, PAL_SEG.c);
+    const my = ty + 11 - sorso * 3;
+    R(px + 11, my, 5, 5, '#f8fafc'); R(px + 16, my + 1, 1, 3, '#f8fafc'); R(px + 11, my, 5, 1, '#6b3f1d'); R(px + 12, my + 4, 3, 1, PAL_SEG.S);
+    for (let k = 0; k < 3; k++) { const a = (t / 700 + k * .9) % 3; R(px + 13 + Math.round(Math.sin(a * 2 + k) * 1.2), my - 2 - a * 3, 1, 1, '#fff', .55 - a * .15); }
+  }
+  etichetta('segretaria', px + 7, ty - 13);
 }
+
+/* ---------- Chirone, il mister ---------- */
+const FRECCE = [[[172, 112], [178, 104], [186, 99], [194, 96]], [[166, 100], [172, 94], [181, 92]], [[188, 112], [193, 105]]];
+function lavagna(t, lav) {
+  const x = 152, y = 82;
+  ombra(x + 2, y + 54, 56);
+  R(x + 6, y + 40, 2, 15, '#6b7694'); R(x + 52, y + 40, 2, 15, '#6b7694'); R(x + 3, y + 54, 8, 2, '#4a5470'); R(x + 49, y + 54, 8, 2, '#4a5470');
+  R(x, y, 60, 42, '#cfd6e6'); R(x, y, 60, 1, '#fff'); R(x + 59, y, 1, 42, '#8f99b5');
+  R(x + 2, y + 2, 56, 36, '#1d7a45'); for (let k = 0; k < 4; k++) R(x + 2 + k * 14, y + 2, 7, 36, '#21874d');
+  const b = '#e9f5ee';
+  R(x + 4, y + 4, 52, 1, b); R(x + 4, y + 35, 52, 1, b); R(x + 4, y + 4, 1, 32, b); R(x + 55, y + 4, 1, 32, b);
+  R(x + 18, y + 26, 24, 1, b); R(x + 18, y + 26, 1, 9, b); R(x + 41, y + 26, 1, 9, b); R(x + 25, y + 31, 10, 1, b); R(x + 25, y + 31, 1, 4, b); R(x + 34, y + 31, 1, 4, b);
+  for (let a = 0; a < 10; a++) { const an = a / 9 * 3.1416; R(x + 30 + Math.cos(an) * 8, y + 5 + Math.sin(an) * 5, 1, 1, b); }
+  [[164, 108], [171, 115], [184, 110], [196, 114]].forEach(([mx, my]) => { R(mx, my, 2, 2, '#ef4444'); R(mx, my, 1, 1, '#fca5a5'); });
+  [[172, 98], [186, 96], [194, 104]].forEach(([mx, my]) => { R(mx, my, 2, 2, '#3b82f6'); R(mx, my, 1, 1, '#93c5fd'); });
+  R(x + 2, y + 39, 56, 2, '#aab3cf'); R(x + 10, y + 38, 5, 2, '#ef4444'); R(x + 18, y + 38, 5, 2, '#facc15');
+  const ciclo = 7000, pr = lav ? Math.min(1, (t % ciclo) / (ciclo - 1800)) : 1;
+  let punta = null; const tot = FRECCE.length;
+  FRECCE.forEach((f, i) => {
+    const loc = Math.max(0, Math.min(1, pr * tot - i)); if (loc <= 0) return;
+    const seg = f.length - 1, fin = loc * seg;
+    for (let s = 0; s < seg; s++) {
+      const q = Math.max(0, Math.min(1, fin - s)); if (q <= 0) break;
+      const [ax, ay] = f[s], [bx, by] = f[s + 1], ex = ax + (bx - ax) * q, ey = ay + (by - ay) * q;
+      linea(ax, ay, ex, ey, '#fde047');
+      if (loc < 1) punta = [ex, ey];
+      if (loc >= 1 && s === seg - 1) { R(bx - 1, by, 1, 1, '#fde047'); R(bx, by + 1, 1, 1, '#fde047'); R(bx - 1, by + 1, 1, 1, '#fde047'); }
+    }
+  });
+  return punta;
+}
+function pallone(x, y) { x = Math.round(x); y = Math.round(y); R(x + 1, y, 3, 5, '#f8fafc'); R(x, y + 1, 5, 3, '#f8fafc'); R(x + 2, y + 2, 1, 1, '#1f2937'); R(x + 1, y, 1, 1, '#1f2937'); R(x + 4, y + 1, 1, 1, '#1f2937'); R(x, y + 3, 1, 1, '#1f2937'); R(x + 3, y + 4, 1, 1, '#1f2937'); }
+function mister(t) {
+  const lav = statoDi('mister') === 'lavoro', px = 202, ty = 124;
+  const punta = lavagna(t, lav);
+  ombra(220, 158, 16); pallone(222, 153); pallone(227, 154); pallone(224, 149); for (let k = 0; k < 4; k++) R(220 + k * 4, 148, 1, 11, '#cbd5e1', .35); R(220, 152, 14, 1, '#cbd5e1', .3);
+  [[160, 150], [168, 154], [176, 150]].forEach(([x, y], i) => { R(x + 1, y, 2, 2, i % 2 ? '#f97316' : '#facc15'); R(x, y + 2, 4, 2, i % 2 ? '#ea580c' : '#eab308'); });
+  ombra(px, ty + 22, 14);
+  if (lav) {
+    spr(GAMBE, PAL_MIS, px, ty + 17); R(px + 2, ty + 22, 4, 1, '#0b0f1a'); R(px + 8, ty + 22, 4, 1, '#0b0f1a');
+    spr(BUSTO_R, PAL_MIS, px, ty + 10); spr(TESTA_CAP_R, PAL_MIS, px + 1, ty + Math.round(Math.sin(t / 600) * .4));
+    const [hx, hy] = punta || [190, 116 + Math.sin(t / 300)];
+    linea(px + 1, ty + 12, hx + 2, hy + 3, PAL_MIS.R, 2); linea(px + 1, ty + 13, hx + 2, hy + 4, PAL_MIS.r, 1);
+    R(hx + 1, hy + 1, 2, 2, PAL_MIS.S); R(hx, hy, 1, 1, '#fde047');
+  } else {
+    const f = (t % 900) / 900, alt = Math.sin(f * 3.1416), calcio = f < .18 || f > .86;
+    spr(GAMBE, PAL_MIS, px, ty + 17); R(px + 2, ty + 22, 4, 1, '#0b0f1a');
+    if (calcio) { R(px + 7, ty + 20, 4, 3, '#283152'); R(px + 8, ty + 18, 5, 2, PAL_MIS.P); R(px + 11, ty + 19, 4, 2, '#0b0f1a'); } else R(px + 8, ty + 22, 4, 1, '#0b0f1a');
+    spr(BUSTO_F, PAL_MIS, px, ty + 10);
+    const pal = Object.assign({}, PAL_MIS); if (t % 3100 < 130) pal.E = PAL_MIS.s;
+    spr(TESTA_CAP_F, pal, px + 1, ty);
+    R(px + 11, ty + 25, 5, 1, '#000', .18 + (1 - alt) * .15); pallone(px + 11, ty + 15 - alt * 13);
+  }
+  etichetta('mister', px - 6, ty + 28);
+}
+
+/* ---------- Ermes, il postino ---------- */
+function postino(t) {
+  const lav = statoDi('postino') === 'lavoro', dx = 10, dy = 204, px = 40, ty = 179;
+  sedia(px, ty);
+  const pal = Object.assign({}, PAL_ERM); if (!lav || t % 3400 < 140) pal.E = PAL_ERM.s;
+  const resp = lav ? 0 : Math.round(Math.sin(t / 950) * .5);
+  R(px, ty + 17 + resp, 14, 10, PAL_ERM.R); R(px, ty + 17 + resp, 1, 10, PAL_ERM.O); R(px + 13, ty + 17 + resp, 1, 10, PAL_ERM.O);
+  spr(BUSTO_SED, pal, px, ty + 10 + resp); spr(TESTA_CAP_F, pal, px + 1, ty + resp);
+  R(px + 4, ty + 8 + resp, 6, 1, '#8a909d');                         // baffi
+  // sacco della posta
+  ombra(dx + 86, dy + 28, 16); R(dx + 88, dy + 12, 12, 17, '#8a6233'); R(dx + 88, dy + 12, 12, 2, '#a97c45'); R(dx + 87, dy + 16, 14, 10, '#7a5529'); busta(dx + 89, dy + 8, '#3b82f6'); busta(dx + 93, dy + 9);
+  scrivania(dx, dy, 86, '#9a6a3c', '#6f4826');
+  // pila di buste da smistare
+  const ciclo = 1400, n = Math.floor(t / ciclo), q = (t % ciclo) / ciclo;
+  const pila = lav ? 6 - (n % 6) : 4;
+  for (let k = 0; k < pila; k++) busta(dx + 5 + (k % 2), dy + 5 - k * 2, k % 3 ? '#ef4444' : '#3b82f6');
+  // casellario
+  const cx = dx + 58, cy = dy - 22;
+  R(cx, cy, 26, 26, '#5b3a1f'); R(cx, cy, 26, 2, '#7d5430');
+  const pieni = lav ? n % 10 : 5;
+  for (let r = 0; r < 3; r++) for (let k = 0; k < 3; k++) { const i = r * 3 + k; R(cx + 2 + k * 8, cy + 3 + r * 7, 6, 6, '#2c1b0d'); if (i < pieni) { R(cx + 3 + k * 8, cy + 5 + r * 7, 4, 3, '#f4f6fb'); R(cx + 3 + k * 8, cy + 5 + r * 7, 4, 1, i % 2 ? '#ef4444' : '#3b82f6'); } }
+  // timbro e tampone
+  R(dx + 44, dy + 6, 8, 3, '#1f2937'); R(dx + 46, dy + 1, 4, 5, '#b45309'); R(dx + 45, dy, 6, 2, '#d97706');
+  if (lav) {
+    R(px + 1, dy - 1, 3, 6, PAL_ERM.r); R(px + 1, dy + 4, 3, 2, PAL_ERM.S);
+    if (q < .55) { const a = q / .55, bx = dx + 12 + (cx + 4 - dx - 12) * a, by = dy + 2 + (cy + 10 - dy - 2) * a - Math.sin(a * 3.1416) * 12; busta(bx, by, '#ef4444'); R(px + 10, dy - 3, 3, 6, PAL_ERM.r); R(px + 11, dy - 5, 3, 2, PAL_ERM.S); }
+    else { R(px + 10, dy - 1, 3, 6, PAL_ERM.r); R(px + 10, dy + 4, 3, 2, PAL_ERM.S); }
+  } else {
+    R(px + 1, dy - 1, 3, 6, PAL_ERM.r); R(px + 1, dy + 4, 3, 2, PAL_ERM.S); R(px + 10, dy - 1, 3, 6, PAL_ERM.r); R(px + 10, dy + 4, 3, 2, PAL_ERM.S);
+    R(px + 4, dy + 2, 7, 5, '#fff7d6'); R(px + 5, dy + 3, 3, 2, '#60a5fa'); R(px + 9, dy + 3, 1, 1, '#ef4444');   // cartolina
+    zzz(px + 15, ty - 1, t);
+  }
+  etichetta('postino', px + 7, ty - 13);
+}
+
+/* ---------- Orione, il cacciatore ---------- */
+function cacciatore(t) {
+  const lav = statoDi('cacciatore') === 'lavoro', dx = 144, dy = 204, px = 172, ty = 179;
+  sedia(px, ty);
+  const pal = Object.assign({}, PAL_ORI); if (!lav) pal.E = PAL_ORI.s;
+  const gia = Object.assign({}, PAL_ORI, GIACCA_ORI);
+  const gira = lav ? Math.round(Math.sin(t / 800)) : 0;
+  R(px, ty + 17, 14, 10, GIACCA_ORI.R); R(px, ty + 17, 1, 10, PAL_ORI.O); R(px + 13, ty + 17, 1, 10, PAL_ORI.O);
+  spr(BUSTO_SED, gia, px, ty + 10);
+  spr(TESTA_CAP_F, pal, px + 1 + gira, ty);
+  R(px - 1 + gira, ty + 4, 2, 1, PAL_ORI.r); R(px + 13 + gira, ty + 4, 2, 1, PAL_ORI.r); R(px - 1 + gira, ty + 5, 16, 1, PAL_ORI.O, .5);   // tesa larga
+  scrivania(dx, dy, 86, '#8f6a3e', '#664a2a');
+  // mappa con le prede
+  R(dx + 4, dy + 1, 40, 11, '#e9dcb4'); R(dx + 4, dy + 1, 40, 1, '#fff6d8'); R(dx + 17, dy + 1, 1, 11, '#cdbd8e'); R(dx + 30, dy + 1, 1, 11, '#cdbd8e');
+  linea(dx + 6, dy + 9, dx + 20, dy + 4, '#9ab07a'); linea(dx + 20, dy + 4, dx + 40, dy + 7, '#9ab07a'); linea(dx + 12, dy + 2, dx + 26, dy + 10, '#8fb3d9');
+  const spilli = [[9, 5], [18, 8], [25, 3], [33, 6], [38, 9]], np = lav ? Math.floor(t / 1300) % 6 : 3;
+  spilli.forEach(([sx, sy], i) => { if (i < np) { R(dx + sx, dy + sy, 2, 2, '#ef4444'); R(dx + sx, dy + sy - 1, 1, 1, '#fecaca'); } });
+  // radar
+  const mx = dx + 58; monitor(mx, dy, lav);
+  if (lav) {
+    const rx = mx + 11, ry = dy - 12, an = t / 500;
+    for (let a = 0; a < 16; a++) { const g = a / 16 * 6.283; R(rx + Math.cos(g) * 7, ry + Math.sin(g) * 6, 1, 1, '#1f8a4c'); }
+    linea(rx, ry, rx + Math.cos(an) * 7, ry + Math.sin(an) * 6, '#4ade80'); R(rx, ry, 1, 1, '#bbf7d0');
+    [[3, -2], [-4, 2], [1, 4]].forEach(([bx, by], i) => { if ((Math.floor(t / 600) + i) % 3) R(rx + bx, ry + by, 1, 1, '#fde047'); });
+    bagliore(mx + 10, dy - 11, 12, '#4ade80', .09);
+  }
+  R(dx + 47, dy + 3, 5, 7, '#3f6212'); R(dx + 47, dy + 3, 5, 2, '#9ca3af'); R(dx + 48, dy + 1, 3, 2, '#6b7280');     // thermos
+  if (lav) {
+    const bx = px + 3 + gira, by = ty + 5;
+    R(px + 1, ty + 9, 3, 8, GIACCA_ORI.r); R(px + 10, ty + 9, 3, 8, GIACCA_ORI.r);
+    R(bx - 1, by, 10, 4, '#111827'); R(bx, by + 1, 3, 2, '#38bdf8'); R(bx + 5, by + 1, 3, 2, '#38bdf8'); R(bx + (Math.floor(t / 300) % 2 ? 0 : 5), by + 1, 1, 1, '#e0f2fe');
+    R(bx - 2, by + 3, 2, 2, PAL_ORI.S); R(bx + 8, by + 3, 2, 2, PAL_ORI.S);
+  } else {
+    R(px + 1, dy - 1, 3, 6, GIACCA_ORI.r); R(px + 1, dy + 4, 3, 2, PAL_ORI.S); R(px + 10, dy - 1, 3, 6, GIACCA_ORI.r); R(px + 10, dy + 4, 3, 2, PAL_ORI.S);
+    R(px, ty + 5, 14, 2, PAL_ORI.r); R(px + 1, ty + 5, 12, 1, PAL_ORI.R);       // cappello calato sugli occhi
+    R(px + 4, ty + 14, 6, 3, '#111827'); R(px + 5, ty + 15, 1, 1, '#38bdf8'); R(px + 8, ty + 15, 1, 1, '#38bdf8'); R(px + 6, ty + 11, 1, 3, '#111827');   // binocolo al collo
+    zzz(px + 15, ty - 1, t);
+  }
+  etichetta('cacciatore', px + 7, ty - 13);
+}
+
+/* ---------- postazioni in arrivo ---------- */
+function inArrivo(id, x, y, seme) {
+  scrivania(x, y, 52, '#7c6a58', '#5a4a3c');
+  R(x - 1, y - 2, 54, 9, '#aeb6cc', .9); R(x - 1, y - 2, 54, 1, '#d7dcea'); R(x + 6, y + 7, 12, 3, '#aeb6cc', .9); R(x + 30, y + 7, 16, 4, '#aeb6cc', .9);
+  scatola(x + 6 + seme * 3, y - 12, 14, 11); scatola(x + 28 - seme * 2, y - 8 - (seme % 2), 11, 7 + (seme % 2));
+  R(x + 16, y + 32, 20, 12, '#27335c'); R(x + 16, y + 32, 20, 2, '#3a4a7e');
+  etichetta(id, x + 26, y - 24);
+}
+
+/* ---------- scena ---------- */
+function scena(t) {
+  R(0, 0, W, H, '#232b47');
+  for (let y = 74; y < H; y += 16) for (let x = 0; x < W; x += 16) if (((x >> 4) + (y >> 4)) % 2) R(x, y, 16, 16, '#283152');
+  for (let y = 74; y < H; y += 16) R(0, y, W, 1, '#000', .08);
+  R(0, 0, W, 72, '#343e66'); R(0, 0, W, 4, '#2a3356'); R(0, 68, W, 4, '#262e4e'); R(0, 72, W, 2, '#000', .3);
+  finestra(14, 12, 66, 40, 3, t, true); finestra(160, 12, 66, 40, 11, t, false);
+  argo(t);
+  schedario(8, 56); pianta(32, 70); libreria(196, 50); boccione(178, 58); pianta(146, 76);
+  R(18, 76, 58, 22, '#7aa2ff', .05); R(164, 90, 58, 14, '#7aa2ff', .04);
+  fogli();
+  ombra(110, 150, 10); R(111, 141, 8, 10, '#56637f'); R(111, 141, 8, 2, '#7a88a8'); R(113, 139, 3, 2, '#eef1f8');
+  segretaria(t); mister(t); postino(t); cacciatore(t);
+  inArrivo('penna', 6, 276, 0); inArrivo('analista', 64, 276, 1); inArrivo('social', 122, 276, 2); inArrivo('pilota', 180, 276, 1);
+  R(0, 0, W, H, '#060a18', .10); R(0, 0, 8, H, '#060a18', .22); R(W - 8, 0, 8, H, '#060a18', .22); R(0, H - 10, W, 10, '#060a18', .3);
+}
+const fermo = matchMedia('(prefers-reduced-motion:reduce)').matches;
+let ultimo = -1e9;
+function giro(t) { if (t - ultimo > 80) { ultimo = t; scena(fermo ? 3000 : t); } requestAnimationFrame(giro); }
+requestAnimationFrame(giro);
 
 /* ---------- schede ---------- */
-const GG = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-async function caricaDati() {
-  try {
-    const r = await fetch('/api/data', { headers: { 'x-argo-pin': pin } });
-    if (r.status === 401) return blocca('PIN non valido'), false;
-    const j = await r.json();
-    if (!r.ok) { $('pinErr').textContent = j.error || ''; return false; }
-    $('sCervello').className = j.stato.cervello ? 'ok' : 'ko';
-    $('sDb').className = j.stato.database ? 'ok' : 'ko';
-    $('lPartite').innerHTML = j.partite.map((p) => {
-      const d = new Date(p.data + 'T12:00:00');
-      return `<div class="carta"><div class="giorno">${GG[d.getDay()]}<b>${d.getDate()}</b></div><div class="corpo"><span class="etichetta ${/Pulcini/.test(p.squadra) ? 'pu' : ''}">${/Pulcini/.test(p.squadra) ? 'Pulcini' : 'Primi calci'}</span>${esc(p.ora)}<br>${esc(p.partita)}<small>${esc(p.luogo)}${p.nota ? ' · <em>' + esc(p.nota) + '</em>' : ''}</small></div></div>`;
-    }).join('') || '<div class="vuoto">Nessuna partita in calendario.</div>';
-    $('nProm').textContent = j.promemoria.length ? j.promemoria.length + ' aperti' : '';
-    $('lProm').innerHTML = j.promemoria.map((t) => {
-      const d = t.scadenza ? new Date(t.scadenza) : null;
-      const quando = d ? d.toLocaleString('it-IT', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'senza scadenza';
-      const tardi = d && d < new Date();
-      return `<div class="carta"><button class="spunta" data-id="${Number(t.id)}" aria-label="Fatto"></button><div class="corpo">${t.priorita === 'critico' ? '<span class="etichetta critico">Critico</span>' : ''}${esc(t.testo)}<small>${tardi ? '<em>Scaduto · </em>' : ''}${esc(quando)} · ${esc(t.area)}</small></div></div>`;
-    }).join('') || `<div class="vuoto">${j.stato.database ? 'Nessun promemoria aperto. Dettane uno: «ARGO, ricordami di…»' : 'Database non ancora collegato: i promemoria si attivano appena aggiungi le chiavi Supabase su Vercel.'}</div>`;
-    return true;
-  } catch { return false; }
+const ETI = { lavoro: 'Al lavoro', pausa: 'In pausa', arrivo: 'In arrivo', errore: 'Problema' };
+function quando(iso) {
+  if (!iso) return ''; const d = new Date(iso); if (isNaN(d)) return String(iso);
+  const oggi = new Date().toDateString() === d.toDateString();
+  return (oggi ? 'oggi ' : d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }) + ' ') + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 }
-$('lProm').addEventListener('click', async (e) => {
-  const b = e.target.closest('.spunta'); if (!b) return;
-  b.closest('.carta').style.opacity = .3;
-  await fetch('/api/data', { method: 'POST', headers: { 'content-type': 'application/json', 'x-argo-pin': pin }, body: JSON.stringify({ azione: 'fatto', id: Number(b.dataset.id) }) }).catch(() => {});
-  caricaDati();
-});
-function apri(id) { document.querySelectorAll('.foglio').forEach((f) => f.classList.toggle('su', f.id === id)); document.body.classList.add('aperto'); }
-function chiudiFogli() { document.querySelectorAll('.foglio').forEach((f) => f.classList.remove('su')); document.body.classList.remove('aperto'); }
-$('apriSchede').onclick = () => { caricaDati(); apri('schede'); };
-$('apriImp').onclick = () => apri('imp');
-$('velo').onclick = chiudiFogli;
-document.querySelectorAll('.maniglia').forEach((m) => (m.onclick = chiudiFogli));
+function apri(id) {
+  const a = TEAM[id], s = statoDi(id), d = dati[id] || {};
+  $('sNome').textContent = a.nome; $('sRuolo').textContent = a.ruolo;
+  $('sStato').textContent = ETI[s] + (d.attivita && s === 'lavoro' ? ' — ' + d.attivita : '') + (d.aggiornato ? '\nAggiornato ' + quando(d.aggiornato) : '');
+  $('sRapporto').textContent = a.arrivo ? 'Non ancora in servizio: la scrivania è pronta, basta assumerlo.' : (d.rapporto || 'Nessun rapporto ancora: entra in servizio al prossimo turno.');
+  $('sProssimo').textContent = a.arrivo ? '—' : (d.prossimo || a.turno || '—');
+  document.body.classList.add('aperta');
+}
+const chiudi = () => document.body.classList.remove('aperta');
+$('velo').onclick = chiudi; $('sChiudi').onclick = chiudi;
+cv.onclick = (e) => {
+  const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
+  for (const id in TEAM) { const [zx, zy, zw, zh] = TEAM[id].zona; if (x >= zx && x < zx + zw && y >= zy && y < zy + zh) return apri(id); }
+  if (y < 76 && x > 84 && x < 156) $('argoMsg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+function tic() { const d = new Date(); $('ora').textContent = d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }); }
+setInterval(tic, 20000); tic();
 
-/* ---------- impostazioni ---------- */
-let sveglio = null;
-function aggiornaLeve() {
-  $('oVoce').classList.toggle('on', opz.voce); $('oMani').classList.toggle('on', opz.mani); $('oCont').classList.toggle('on', opz.cont);
-  $('mani').classList.toggle('on', opz.mani); $('oVel').value = opz.vel;
-}
-async function maniLibere(on) {
-  opz.mani = on; armato = false; aggiornaLeve();
-  if (on) {
-    try { sveglio = await navigator.wakeLock.request('screen'); } catch {}
-    ferma(); attivo = false; setStato('attesa'); ascolta();
-  } else {
-    try { sveglio && sveglio.release(); } catch {} sveglio = null;
-    ferma(); setStato('pronto');
+/* ---------- dati ---------- */
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+async function carica() {
+  try {
+    const r = await fetch('/api/hq', { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    for (const id in j.agenti || {}) dati[id] = j.agenti[id];
+    const x = j.capo;
+    if (x) {
+      $('argoMsg').textContent = x.messaggio || '';
+      $('argoPri').innerHTML = (Array.isArray(x.priorita) ? x.priorita : []).slice(0, 5).map((p) => `<li>${esc(p)}</li>`).join('');
+      $('argoAgg').textContent = x.aggiornato ? 'Aggiornato ' + quando(x.aggiornato) : '';
+    }
+    const reg = j.registro || [];
+    $('registro').innerHTML = !reg.length ? '<div class="vuoto">Nessun rapporto ancora.</div>' :
+      reg.map((v) => { const n = TEAM[v.agente] ? TEAM[v.agente].nome : 'ARGO'; return `<div class="voce"><b>${esc(n)}</b><span>${esc(v.testo)}<br><time>${esc(quando(v.quando))}</time></span></div>`; }).join('');
+  } catch (e) {
+    if (!Object.keys(dati).length) $('argoMsg').textContent = 'Il quartier generale non risponde. Controlla la connessione e riprova.';
   }
 }
-$('oVoce').onclick = () => { opz.voce = !opz.voce; mem.set('voce', opz.voce); if (!opz.voce) zitto(); aggiornaLeve(); };
-$('oCont').onclick = () => { opz.cont = !opz.cont; mem.set('cont', opz.cont); aggiornaLeve(); };
-$('oMani').onclick = () => maniLibere(!opz.mani);
-$('mani').onclick = () => maniLibere(!opz.mani);
-$('oQuale').onchange = (e) => { opz.quale = e.target.value; mem.set('quale', opz.quale); parla('Voce impostata.'); };
-$('oVel').onchange = (e) => { opz.vel = Number(e.target.value); mem.set('vel', opz.vel); };
-$('esci').onclick = () => { mem.set('pin', ''); pin = ''; chiudiFogli(); blocca(''); };
-document.addEventListener('visibilitychange', () => { if (document.hidden) { zitto(); if (opz.mani) maniLibere(false); } });
-
-/* ---------- comandi ---------- */
-$('nucleo').onclick = () => {
-  if (stato === 'parlo') { zitto(); scrivendo++; setStato('pronto'); return; }
-  if (stato === 'ascolto' && !opz.mani) { chiudi(buf); return; }
-  if (stato === 'penso') return;
-  if (opz.mani) { armato = true; ferma(); attivo = false; bip(); }
-  ascolta();
-};
-$('rapidi').onclick = (e) => { const b = e.target.closest('button'); if (b) invia(b.dataset.q); };
-$('modulo').onsubmit = (e) => { e.preventDefault(); const v = $('campo').value; $('campo').value = ''; $('campo').blur(); invia(v); };
-
-/* ---------- orologio ---------- */
-function tic() {
-  const d = new Date();
-  $('orologio').textContent = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-  $('data').textContent = d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
-}
-setInterval(tic, 15000); tic();
-
-/* ---------- accesso e avvio ---------- */
-function blocca(msg) { $('blocco').classList.remove('nascosto'); $('pinErr').textContent = msg || ''; $('pin').value = ''; }
-async function entra() {
-  const ok = await caricaDati();
-  if (!ok) { if (!$('pinErr').textContent) $('pinErr').textContent = pin ? 'PIN non valido' : ''; $('blocco').classList.remove('nascosto'); return; }
-  mem.set('pin', pin);
-  $('blocco').classList.add('nascosto');
-  const p = new URLSearchParams(location.search);
-  const q = p.get('q');
-  if (q) { history.replaceState(null, '', '/'); invia(q); }
-  else if (p.get('ascolta')) { history.replaceState(null, '', '/'); ascolta(); }
-}
-$('pinOk').onclick = () => { pin = $('pin').value.trim(); $('pinErr').textContent = ''; entra(); };
-$('pin').onkeydown = (e) => { if (e.key === 'Enter') $('pinOk').click(); };
-
-misura(); requestAnimationFrame(disegna); aggiornaLeve();
-if (pin) entra();
+carica(); setInterval(() => { if (!document.hidden) carica(); }, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) carica(); });
 })();
 </script>
 </body>
