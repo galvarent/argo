@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ARGO">
+<meta name="theme-color" content="#070b18">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="icon" href="/icon-180.png">
+<title>ARGO – Plancia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fondo:#070b18;--panel:#121a33;--panel2:#18224a;--line:#2a3970;--ombra:#03050c;
+  --ink:#e9f0ff;--dim:#8a97c4;--cyan:#5ee6d0;
+  --lavoro:#f2b84b;--calcio:#7ddc6a;--personale:#a99bff;--marga:#ff6b8a;--rosso:#ff5d5d;
+  --px:Silkscreen,monospace;--ui:"Chakra Petch",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--fondo);color:var(--ink);font:400 16px/1.4 var(--ui);min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;padding:0}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+
+/* Struttura */
+.app{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh}
+.testa{position:sticky;top:0;z-index:4;min-width:0;background:var(--fondo);border-bottom:2px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 0}
+.riga-testa{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.marchio{font:700 15px var(--px);letter-spacing:1px}.marchio span{color:var(--cyan)}
+.stato-dati{font-size:13px;color:var(--dim);text-align:right}
+.stato-dati button{color:var(--cyan);text-decoration:underline}
+.schede{display:flex;gap:4px;overflow-x:auto;margin:10px -12px 0;padding:0 12px;scrollbar-width:none}
+.schede::-webkit-scrollbar{display:none}
+.schede button{flex:none;padding:9px 12px 8px;font:600 15px var(--ui);color:var(--dim);border:2px solid transparent;border-bottom:0;position:relative;top:2px}
+.schede button[aria-current="page"]{color:var(--ink);background:var(--panel);border-color:var(--line)}
+.schede .conta{font:700 10px var(--px);color:var(--fondo);background:var(--lavoro);padding:1px 5px;margin-left:5px;vertical-align:2px}
+.vista{padding:14px 12px calc(env(safe-area-inset-bottom,0px) + 40px);max-width:1500px;width:100%;min-width:0;margin:0 auto}
+
+/* Blocchi */
+.box{border:2px solid var(--line);background:var(--panel);box-shadow:0 4px 0 var(--ombra);margin-bottom:16px;min-width:0}
+.box>h2{font:700 12px var(--px);padding:8px 10px;background:var(--panel2);border-bottom:2px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.box>h2 small{font:500 13px var(--ui);color:var(--dim)}
+.box.argo{border-color:var(--cyan)}.box.argo>h2{color:var(--cyan);border-color:var(--cyan)}
+.dentro{padding:12px}
+.vuoto{padding:14px 12px;color:var(--dim)}
+.griglia{display:grid;gap:16px;grid-template-columns:1fr;align-items:start}
+.griglia>.box{margin-bottom:0}
+.col{display:grid;gap:16px;min-width:0}
+
+.numeri{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.numero{border:2px solid var(--line);background:var(--panel);padding:10px 12px;text-align:left;box-shadow:0 4px 0 var(--ombra)}
+.numero b{display:block;font:700 28px/1.1 var(--ui);font-variant-numeric:tabular-nums}
+.numero span{font-size:14px;color:var(--dim)}
+.numero.allarme b{color:var(--rosso)}.numero.bene b{color:var(--calcio)}
+
+.msg{font-size:18px;line-height:1.35;white-space:pre-line}
+ol.pri{margin:10px 0 0;padding-left:22px}ol.pri li{margin:4px 0}
+
+/* Righe elenco */
+.riga{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;padding:10px 12px;border-bottom:1px dashed var(--line)}
+.riga:last-child{border-bottom:0}
+button.riga:hover{background:var(--panel2)}
+.riga .ora{flex:none;width:52px;font:600 15px var(--ui);font-variant-numeric:tabular-nums;color:var(--dim)}
+.riga .corpo{flex:1;min-width:0}
+.riga .tit{font-weight:600;overflow-wrap:anywhere}
+.riga .sotto{font-size:14px;color:var(--dim);overflow-wrap:anywhere}
+.riga .dx{flex:none;text-align:right;font-size:14px;color:var(--dim)}
+.tacca{flex:none;width:6px;align-self:stretch;background:var(--dim)}
+.tacca.lavoro{background:var(--lavoro)}.tacca.calcio{background:var(--calcio)}.tacca.personale{background:var(--personale)}.tacca.marga{background:var(--marga)}
+.giorno{font:700 11px var(--px);color:var(--cyan);padding:10px 12px 4px}
+.passato{opacity:.45}
+
+.tag{display:inline-block;font:600 12px var(--ui);padding:1px 7px;border:1px solid var(--line);color:var(--dim);margin-right:4px;white-space:nowrap}
+.tag.scaduto{border-color:var(--rosso);color:var(--rosso)}
+.tag.oggi{border-color:var(--lavoro);color:var(--lavoro)}
+.tag.ok{border-color:var(--calcio);color:var(--calcio)}
+.tag.marga{border-color:var(--marga);color:var(--marga)}
+
+/* Filtri e bottoni */
+.filtri{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
+.filtri::-webkit-scrollbar{display:none}
+.filtri button{flex:none;border:2px solid var(--line);padding:6px 10px;font-weight:600;color:var(--dim);background:var(--panel)}
+.filtri button[aria-pressed="true"]{border-color:var(--cyan);color:var(--ink)}
+.filtri button b{font-variant-numeric:tabular-nums;color:var(--cyan);margin-left:4px}
+.btn{display:inline-block;border:2px solid var(--cyan);color:var(--cyan);padding:8px 12px;font-weight:600;text-decoration:none;background:var(--panel);text-align:center}
+.btn.pieno{background:var(--cyan);color:var(--fondo)}
+.btn.grigio{border-color:var(--line);color:var(--ink)}
+.btn.rosso{border-color:var(--rosso);color:var(--rosso)}
+.btn.verde{border-color:var(--calcio);color:var(--calcio)}
+.btn[disabled]{opacity:.5;cursor:default}
+.azioni{display:flex;flex-wrap:wrap;gap:8px}
+.barra{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.barra input{flex:1;min-width:0}
+input,select,textarea{background:var(--fondo);border:2px solid var(--line);padding:8px 10px;width:100%;border-radius:0}
+textarea{min-height:70px;resize:vertical}
+label{display:block;font-size:14px;color:var(--dim);margin-bottom:10px}
+label>input,label>select,label>textarea{margin-top:3px;color:var(--ink);font-size:16px}
+.due{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Kanban clienti (desktop) */
+.kanban{display:none}
+.colonna{border:2px solid var(--line);background:var(--panel);min-width:0}
+.colonna h3{font:700 11px var(--px);padding:8px 10px;background:var(--panel2);border-bottom:2px solid var(--line);display:flex;justify-content:space-between}
+.colonna h3 b{color:var(--cyan)}
+
+/* Chiamate */
+.carta{border:2px solid var(--line);background:var(--panel);box-shadow:0 4px 0 var(--ombra);padding:12px;margin-bottom:14px}
+.carta h3{font:600 18px var(--ui);overflow-wrap:anywhere}
+.carta .tel{font:700 20px var(--ui);font-variant-numeric:tabular-nums;display:inline-block;margin:6px 0}
+.gancio{border-left:4px solid var(--lavoro);padding:2px 0 2px 10px;margin:8px 0}
+.stelle{color:var(--lavoro);letter-spacing:2px}
+
+/* Calcio */
+.squadra h2 .prossima{color:var(--calcio)}
+
+/* Scheda a scomparsa */
+.velo{position:fixed;inset:0;background:rgba(3,5,12,.72);display:none;z-index:8}
+.scheda{position:fixed;left:0;right:0;bottom:0;z-index:9;max-height:92vh;overflow:auto;background:var(--panel);border-top:2px solid var(--cyan);padding:14px 14px calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateY(105%);transition:transform .2s ease-out;visibility:hidden}
+.aperta .velo{display:block}.aperta .scheda{transform:none;visibility:visible}
+.scheda header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.scheda header h2{font:700 20px var(--ui);overflow-wrap:anywhere}
+.chiudi{border:2px solid var(--line);padding:4px 10px;font:700 13px var(--px);color:var(--dim);flex:none}
+.scheda h3{font:700 11px var(--px);color:var(--cyan);margin:18px 0 8px}
+.storia{border-left:2px solid var(--line);margin-left:4px;padding-left:12px}
+.storia div{margin-bottom:10px}.storia time{font-size:13px;color:var(--dim);display:block}
+.avviso{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);transform:translateX(-50%);background:var(--cyan);color:var(--fondo);font-weight:600;padding:9px 14px;z-index:12;display:none;max-width:90vw}
+.avviso.errore{background:var(--rosso);color:#fff}
+.nota-portale{border:2px solid var(--rosso);color:var(--rosso);padding:10px 12px;margin-bottom:14px}
+
+@media (min-width:760px){
+  .numeri{grid-template-columns:repeat(4,1fr)}
+  .griglia.due-col{grid-template-columns:1fr 1fr}
+  .griglia.tre-col{grid-template-columns:1fr 1fr}
+  .code{display:grid;grid-template-columns:1fr 1fr;gap:14px}.code .carta{margin-bottom:0}
+  .scheda{left:auto;top:0;width:480px;max-height:none;border-top:0;border-left:2px solid var(--cyan);transform:translateX(105%)}
+}
+@media (min-width:1100px){
+  .app{grid-template-columns:210px minmax(0,1fr)}
+  .testa{position:sticky;top:0;height:100vh;border-bottom:0;border-right:2px solid var(--line);padding:18px 0 18px 14px;display:flex;flex-direction:column}
+  .riga-testa{flex-direction:column;align-items:flex-start;padding-right:14px}
+  .stato-dati{text-align:left;margin-top:6px}
+  .schede{flex-direction:column;overflow:visible;margin:22px 0 0;padding:0;gap:2px}
+  .schede button{text-align:left;border:2px solid transparent;border-right:0;top:0;left:2px;padding:10px 12px}
+  .schede button[aria-current="page"]{border-color:var(--line);background:var(--panel)}
+  .vista{padding:22px 24px 60px}
+  .griglia.tre-col{grid-template-columns:1.1fr 1fr 1fr}
+  .kanban{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+  .solo-mobile{display:none}
+  .fondo-nav{margin-top:auto;padding-right:14px;display:grid;gap:8px}
+}
+@media (max-width:1099px){.fondo-nav{display:none}}
+@media (prefers-reduced-motion:reduce){.scheda{transition:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="testa">
+    <div class="riga-testa">
+      <div class="marchio"><span>ARGO</span> Plancia</div>
+      <div class="stato-dati" id="statoDati">Carico i dati…</div>
+    </div>
+    <nav class="schede" id="schede" aria-label="Sezioni"></nav>
+    <div class="fondo-nav">
+      <a class="btn grigio" href="/">Ufficio degli agenti</a>
+      <a class="btn" href="https://claude.ai/project/01a1961b-5665-775d-a03e-5b0b09137490" target="_blank" rel="noopener">Parla con ARGO</a>
+    </div>
+  </header>
+  <main class="vista" id="vista"><div class="vuoto">Carico la plancia…</div></main>
+</div>
+
+<div class="velo" id="velo"></div>
+<aside class="scheda" id="scheda" aria-live="polite"></aside>
+<div class="avviso" id="avviso" role="status"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const TZ = 'Europe/Rome';
+const fGiorno = new Intl.DateTimeFormat('en-CA', { timeZone: TZ });
+const fOra = new Intl.DateTimeFormat('it-IT', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
+const fData = new Intl.DateTimeFormat('it-IT', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' });
+const fBreve = new Intl.DateTimeFormat('it-IT', { timeZone: TZ, day: 'numeric', month: 'short' });
+const fQuando = new Intl.DateTimeFormat('it-IT', { timeZone: TZ, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const chiave = (iso) => fGiorno.format(new Date(iso));
+const daChiave = (k) => new Date(k + 'T12:00:00Z');
+const piu = (k, n) => { const d = daChiave(k); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const soldi = (n, v = 'EUR') => (n === null || n === undefined || n === '' ? '' : new Intl.NumberFormat('it-IT', { style: 'currency', currency: v, maximumFractionDigits: 0 }).format(Number(n)));
+
+const SEZIONI = [['oggi', 'Oggi'], ['clienti', 'Clienti'], ['chiamate', 'Chiamate'], ['agenda', 'Agenda'], ['calcio', 'Calcio'], ['marga', 'Marga TV'], ['team', 'Team']];
+const STATI = [['nuovo', 'Nuovi'], ['contattato', 'Contattati'], ['preventivo_inviato', 'Preventivo'], ['trattativa', 'Trattativa'], ['chiuso_vinto', 'Vinti'], ['chiuso_perso', 'Persi']];
+const NOME_STATO = Object.fromEntries([['nuovo', 'Nuovo'], ['contattato', 'Contattato'], ['preventivo_inviato', 'Preventivo inviato'], ['trattativa', 'In trattativa'], ['chiuso_vinto', 'Vinto'], ['chiuso_perso', 'Perso']]);
+const TIPI_ATT = [['chiamata', 'Chiamata'], ['whatsapp', 'WhatsApp'], ['email', 'Email'], ['preventivo', 'Preventivo'], ['appuntamento', 'Appuntamento'], ['nota', 'Nota']];
+const AGENTI = { segretaria: ['Penelope', 'Segretaria'], postino: ['Ermes', 'Postino'], cacciatore: ['Orione', 'Cacciatore'], mister: ['Chirone', 'Mister'], argo: ['ARGO', 'Capo'] };
+const SQUADRE = [['pc', 'Primi Calci 2018', /primi calci/i], ['pu', 'Pulcini 2016/17', /pulcini|winter cup/i], ['ch', 'FC Chiasso', /chiasso/i]];
+const STATI_LAVORO = ['da fare', 'fatto', 'pagato'];
+const STATI_SPONSOR = ['da contattare', 'in trattativa', 'chiuso', 'perso'];
+
+let D = null, sez = (location.hash || '#oggi').slice(1), filtroLead = 'aperti', cerca = '', filtroAgenda = 'tutti', aperta = null, ultimo = 0;
+if (!SEZIONI.some(([k]) => k === sez)) sez = 'oggi';
+
+// ---------- Dati ----------
+async function carica(silenzioso) {
+  try {
+    const r = await fetch('/api/crm', { headers: { Accept: 'application/json' } });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Errore ' + r.status);
+    D = j; ultimo = Date.now();
+    disegna();
+  } catch (e) {
+    if (!D) $('vista').innerHTML = `<div class="nota-portale">Non riesco a caricare i dati: ${esc(e.message)}. <button class="btn" id="riprova">Riprova</button></div>`;
+    else if (!silenzioso) avvisa('Aggiornamento non riuscito: ' + e.message, true);
+  }
+  statoDati();
+}
+async function invia(op, payload, messaggio) {
+  const r = await fetch('/api/crm', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Argo': '1' }, body: JSON.stringify({ op, ...payload }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { avvisa(j.error || 'Operazione non riuscita', true); throw new Error(j.error || 'errore'); }
+  if (messaggio) avvisa(messaggio);
+  return j.dato;
+}
+let tAvviso;
+function avvisa(testo, errore) {
+  const a = $('avviso'); a.textContent = testo; a.className = 'avviso' + (errore ? ' errore' : ''); a.style.display = 'block';
+  clearTimeout(tAvviso); tAvviso = setTimeout(() => { a.style.display = 'none'; }, errore ? 5000 : 2200);
+}
+function statoDati() {
+  if (!ultimo) return;
+  $('statoDati').innerHTML = `Aggiornato alle ${fOra.format(new Date(ultimo))} · <button id="aggiorna">Aggiorna</button>`;
+}
+
+// ---------- Derivati ----------
+const leadAperti = () => D.leads.filter((l) => !String(l.status).startsWith('chiuso'));
+const followScaduti = () => leadAperti().filter((l) => l.nextFollowUpDate && l.nextFollowUpDate.slice(0, 10) <= D.oggi)
+  .sort((a, b) => a.nextFollowUpDate.localeCompare(b.nextFollowUpDate));
+const eventiDi = (k) => D.agenda.filter((e) => chiave(e.inizio) === k);
+const eAllenamento = (e) => /^Tavernola –|Allenamento/i.test(e.titolo);
+const gare = () => D.agenda.filter((e) => e.calendario === 'calcio' && !eAllenamento(e));
+const voci = (area, tipo) => D.voci.filter((v) => v.area === area && (!tipo || v.tipo === tipo));
+function etichettaGiorno(k) {
+  if (k === D.oggi) return 'Oggi';
+  if (k === piu(D.oggi, 1)) return 'Domani';
+  return fData.format(daChiave(k));
+}
+function tagFollow(l) {
+  if (!l.nextFollowUpDate) return '';
+  const k = l.nextFollowUpDate.slice(0, 10);
+  const cl = k < D.oggi ? 'scaduto' : k === D.oggi ? 'oggi' : '';
+  return `<span class="tag ${cl}">${k < D.oggi ? 'Scaduto ' : k === D.oggi ? 'Oggi' : ''}${k === D.oggi ? '' : fBreve.format(daChiave(k))}</span>`;
+}
+
+// ---------- Pezzi ----------
+function rigaEvento(e, conGiorno) {
+  const passato = e.fine ? new Date(e.fine) < new Date() : false;
+  const ora = e.tutto_giorno ? 'Giorno' : fOra.format(new Date(e.inizio));
+  return `<div class="riga${passato ? ' passato' : ''}"><span class="tacca ${esc(e.calendario)}"></span><span class="ora">${ora}</span>
+    <span class="corpo"><span class="tit">${esc(e.titolo)}</span>${e.luogo ? `<div class="sotto">${esc(e.luogo)}</div>` : ''}${conGiorno ? `<div class="sotto">${esc(etichettaGiorno(chiave(e.inizio)))}</div>` : ''}</span></div>`;
+}
+function rigaLead(l) {
+  const dett = [l.vehicleInterest || (l.source && l.source.carName), l.estimatedFee ? soldi(l.estimatedFee) + '/mese' : '', l.partner].filter(Boolean).join(', ');
+  return `<button class="riga" data-lead="${esc(l.id)}"><span class="corpo"><span class="tit">${esc(l.name)}</span>
+    <div class="sotto">${esc(dett || NOME_STATO[l.status] || '')}</div></span><span class="dx">${tagFollow(l)}${l.estimatedCommission ? `<div>${soldi(l.estimatedCommission)}</div>` : ''}</span></button>`;
+}
+function rigaVoce(v) {
+  const k = v.data;
+  const scad = v.area === 'todo' && v.stato !== 'fatto' && k && k < D.oggi;
+  const quando = k ? `<span class="tag ${scad ? 'scaduto' : k === D.oggi ? 'oggi' : ''}">${fBreve.format(daChiave(k))}</span>` : '';
+  const st = v.area === 'todo' ? '' : `<span class="tag ${v.stato === 'pagato' || v.stato === 'chiuso' ? 'ok' : ''}">${esc(v.stato)}</span>`;
+  return `<button class="riga${v.stato === 'fatto' && v.area === 'todo' ? ' passato' : ''}" data-voce="${esc(v.id)}"><span class="corpo"><span class="tit">${esc(v.titolo)}</span>
+    ${v.dettaglio ? `<div class="sotto">${esc(v.dettaglio)}</div>` : ''}</span><span class="dx">${quando}${st}${v.importo ? `<div>${soldi(v.importo, v.valuta)}</div>` : ''}</span></button>`;
+}
+const blocco = (titolo, corpo, extra = '', classe = '') => `<section class="box ${classe}"><h2>${titolo}${extra ? `<small>${extra}</small>` : ''}</h2>${corpo}</section>`;
+const elenco = (righe, vuoto) => (righe.length ? righe.join('') : `<div class="vuoto">${vuoto}</div>`);
+
+// ---------- Viste ----------
+function vOggi() {
+  const capo = (D.hq && D.hq.capo) || {};
+  const sc = followScaduti();
+  const ch = D.chiamate;
+  const prossima = gare().find((e) => new Date(e.fine || e.inizio) >= new Date());
+  const oggi = eventiDi(D.oggi), domani = eventiDi(piu(D.oggi, 1));
+  const todo = voci('todo').filter((v) => v.stato !== 'fatto');
+  const daFare = [
+    ...sc.map((l) => rigaLead(l)),
+    ...(ch ? ch.coda.filter((p) => p.status === 'richiamare').map((p) => `<button class="riga" data-vai="chiamate"><span class="corpo"><span class="tit">Richiamare ${esc(p.name)}</span><div class="sotto">${esc(p.category || '')} ${esc(p.zone || '')}</div></span><span class="dx"><span class="tag oggi">Coda</span></span></button>`) : []),
+    ...todo.map(rigaVoce),
+  ];
+  return `
+  <div class="numeri">
+    <button class="numero ${sc.length ? 'allarme' : ''}" data-vai="clienti"><b>${sc.length}</b><span>follow-up da fare</span></button>
+    <button class="numero" data-vai="clienti"><b>${leadAperti().length}</b><span>trattative aperte</span></button>
+    <button class="numero" data-vai="chiamate"><b>${ch ? ch.coda.length : '–'}</b><span>chiamate in coda</span></button>
+    <button class="numero bene" data-vai="calcio"><b>${prossima ? esc(etichettaGiorno(chiave(prossima.inizio))) : '–'}</b><span>${prossima ? esc(prossima.titolo) : 'nessuna gara in agenda'}</span></button>
+  </div>
+  <div class="griglia tre-col">
+    <div class="col">
+      ${blocco('ARGO', `<div class="dentro"><div class="msg">${esc(capo.messaggio || 'Nessun messaggio per oggi.')}</div>
+        ${(capo.priorita || []).length ? `<ol class="pri">${capo.priorita.map((p) => `<li>${esc(p)}</li>`).join('')}</ol>` : ''}</div>`,
+        capo.aggiornato ? fQuando.format(new Date(capo.aggiornato)) : '', 'argo')}
+      ${blocco('Da fare', elenco(daFare, 'Niente in sospeso. Aggiungi una scadenza qui sotto.') + `<div class="dentro"><button class="btn" data-nuova="todo">Aggiungi scadenza</button></div>`, daFare.length ? daFare.length + ' voci' : '')}
+    </div>
+    ${blocco('Oggi', elenco(oggi.map((e) => rigaEvento(e)), 'Giornata libera.'), esc(fData.format(daChiave(D.oggi))))}
+    ${blocco('Domani', elenco(domani.map((e) => rigaEvento(e)), 'Niente in agenda.'), esc(fData.format(daChiave(piu(D.oggi, 1)))))}
+  </div>`;
+}
+
+function vClienti() {
+  if (!D.portale.ok) return notaPortale();
+  const tutti = D.leads, ap = leadAperti();
+  const q = cerca.trim().toLowerCase();
+  const passa = (l) => !q || [l.name, l.phone, l.email, l.vehicleInterest, l.partner].some((x) => String(x || '').toLowerCase().includes(q));
+  const ordina = (a, b) => (a.nextFollowUpDate || '9').localeCompare(b.nextFollowUpDate || '9') || String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
+  const mese = D.oggi.slice(0, 7);
+  const vintiMese = tutti.filter((l) => l.status === 'chiuso_vinto' && String(l.updatedAt || '').slice(0, 7) === mese);
+  const pipeline = ap.reduce((s, l) => s + (Number(l.estimatedCommission) || 0), 0);
+  const conta = (s) => tutti.filter((l) => l.status === s).length;
+  const lista = (filtroLead === 'aperti' ? ap : tutti.filter((l) => l.status === filtroLead)).filter(passa).sort(ordina);
+  const colonne = STATI.slice(0, 4).map(([s, nome]) => {
+    const righe = tutti.filter((l) => l.status === s).filter(passa).sort(ordina);
+    return `<div class="colonna"><h3>${nome}<b>${righe.length}</b></h3>${elenco(righe.map(rigaLead), 'Nessuno.')}</div>`;
+  }).join('');
+  return `
+  <div class="numeri">
+    <div class="numero"><b>${ap.length}</b><span>trattative aperte</span></div>
+    <div class="numero ${followScaduti().length ? 'allarme' : ''}"><b>${followScaduti().length}</b><span>follow-up da fare</span></div>
+    <div class="numero"><b>${soldi(pipeline) || '0 €'}</b><span>provvigioni in trattativa</span></div>
+    <div class="numero bene"><b>${vintiMese.length}</b><span>contratti vinti questo mese</span></div>
+  </div>
+  <div class="barra"><input type="search" id="cerca" placeholder="Cerca per nome, telefono, auto" value="${esc(cerca)}" aria-label="Cerca cliente"><button class="btn pieno" data-nuovo-lead>Nuovo cliente</button></div>
+  <div class="filtri">
+    <button aria-pressed="${filtroLead === 'aperti'}" data-filtro="aperti">Aperti<b>${ap.length}</b></button>
+    ${STATI.map(([s, n]) => `<button aria-pressed="${filtroLead === s}" data-filtro="${s}">${n}<b>${conta(s)}</b></button>`).join('')}
+  </div>
+  ${filtroLead === 'aperti' ? `<div class="kanban">${colonne}</div>` : ''}
+  <section class="box ${filtroLead === 'aperti' ? 'solo-mobile' : ''}"><h2>${filtroLead === 'aperti' ? 'Trattative aperte' : esc(STATI.find(([s]) => s === filtroLead)[1])}<small>${lista.length}</small></h2>
+    ${elenco(lista.map(rigaLead), q ? 'Nessun cliente corrisponde alla ricerca.' : 'Nessun cliente in questo stato.')}</section>`;
+}
+
+function cartaChiamata(p) {
+  const note = (p.notes || []).slice(-2).reverse();
+  return `<article class="carta" data-pro="${esc(p.id)}">
+    <h3>${esc(p.name)}</h3>
+    <div class="sotto" style="color:var(--dim)">${esc([p.category, p.zone].filter(Boolean).join(', '))} <span class="stelle" aria-label="Punteggio ${p.score} su 3">${'★'.repeat(p.score || 0)}</span>
+      ${p.financial === 'positivo' ? '<span class="tag ok">Utile positivo</span>' : ''}${p.status === 'richiamare' ? '<span class="tag oggi">Da richiamare</span>' : ''}${p.attempts ? `<span class="tag">Tentativi: ${p.attempts}</span>` : ''}</div>
+    <a class="tel" href="tel:${esc(String(p.phone).replace(/\s/g, ''))}">${esc(p.phone)}</a>
+    ${p.contactName ? `<div>Referente: ${esc(p.contactName)}${p.contactRole ? ', ' + esc(p.contactRole) : ''}${p.contactPhone ? ` <a href="tel:${esc(p.contactPhone)}">${esc(p.contactPhone)}</a>` : ''}</div>` : ''}
+    ${p.hook ? `<div class="gancio">${esc(p.hook)}</div>` : ''}
+    ${p.reason ? `<div class="sotto" style="color:var(--dim)">${esc(p.reason)}</div>` : ''}
+    ${p.pinnedNote ? `<div style="margin-top:6px">${esc(p.pinnedNote)}</div>` : ''}
+    ${note.map((n) => `<div class="sotto" style="color:var(--dim);margin-top:4px">${fBreve.format(new Date(n.date))}: ${esc(n.text)}</div>`).join('')}
+    <div class="azioni" style="margin-top:10px">
+      <button class="btn grigio" data-esito="non_risponde">Non risponde</button>
+      <button class="btn" data-esito="richiamare">Richiamare</button>
+      <button class="btn rosso" data-esito="non_interessato">Non interessato</button>
+      <button class="btn verde" data-esito="interessato">Interessato</button>
+    </div></article>`;
+}
+function vChiamate() {
+  const ch = D.chiamate;
+  const az = D.aziende.filter((a) => a.stato === 'nuova');
+  const orione = blocco('Trovate da Orione', elenco(az.map((a) => `<div class="riga"><span class="corpo"><span class="tit">${esc(a.nome)}</span>
+      <div class="sotto">${esc([a.settore, a.comune].filter(Boolean).join(', '))}</div>${a.perche ? `<div class="sotto">${esc(a.perche)}</div>` : ''}
+      <div class="azioni" style="margin-top:8px">${a.telefono ? `<a class="btn" href="tel:${esc(a.telefono)}">${esc(a.telefono)}</a>` : ''}${a.sito ? `<a class="btn grigio" href="${esc(/^https?:\/\//.test(a.sito) ? a.sito : 'https://' + a.sito)}" target="_blank" rel="noopener">Sito</a>` : ''}
+      <button class="btn verde" data-azienda="${a.id}" data-stato="contattata">Contattata</button><button class="btn grigio" data-azienda="${a.id}" data-stato="scartata">Scarta</button></div></span>
+      <span class="dx">${a.punteggio ? `<span class="stelle">${'★'.repeat(Math.min(3, a.punteggio))}</span>` : ''}</span></div>`),
+    'Orione fa il primo giro lunedì alle 7:52: le aziende che trova compaiono qui.'), az.length ? az.length + ' nuove' : '');
+  if (!D.portale.ok || !ch) return notaPortale() + orione;
+  return `
+  <div class="numeri">
+    <div class="numero"><b>${ch.coda.length}</b><span>in coda oggi</span></div>
+    <div class="numero ${ch.stat.richiamiScaduti ? 'allarme' : ''}"><b>${ch.stat.richiamiScaduti}</b><span>richiami scaduti</span></div>
+    <div class="numero"><b>${ch.stat.chiamateSettimana}</b><span>chiamate in 7 giorni</span></div>
+    <div class="numero"><b>${ch.stat.daChiamare}</b><span>aziende ancora da chiamare</span></div>
+  </div>
+  <div class="code">${ch.coda.length ? ch.coda.map(cartaChiamata).join('') : '<div class="vuoto">Coda vuota: nessuna azienda da chiamare oggi.</div>'}</div>
+  <div class="griglia due-col" style="margin-top:16px">
+    ${blocco('Richiami in programma', elenco(ch.richiami.map((p) => `<div class="riga"><span class="corpo"><span class="tit">${esc(p.name)}</span><div class="sotto">${esc([p.category, p.zone].filter(Boolean).join(', '))}</div></span><span class="dx"><span class="tag">${fBreve.format(daChiave(p.nextCallDate))}</span><div><a href="tel:${esc(p.phone)}">${esc(p.phone)}</a></div></span></div>`), 'Nessun richiamo fissato.'))}
+    ${orione}
+  </div>`;
+}
+
+function vAgenda() {
+  const filtri = [['tutti', 'Tutto'], ['lavoro', 'Lavoro'], ['calcio', 'Calcio'], ['personale', 'Personale']];
+  const ev = D.agenda.filter((e) => chiave(e.inizio) >= D.oggi && (filtroAgenda === 'tutti' || e.calendario === filtroAgenda));
+  const limite = piu(D.oggi, 14);
+  const vicini = ev.filter((e) => chiave(e.inizio) <= limite), lontani = ev.filter((e) => chiave(e.inizio) > limite);
+  const giorni = [...new Set(vicini.map((e) => chiave(e.inizio)))];
+  return `
+  <div class="filtri">${filtri.map(([k, n]) => `<button aria-pressed="${filtroAgenda === k}" data-agenda="${k}">${n}</button>`).join('')}</div>
+  <div class="griglia due-col">
+    ${blocco('Prossimi 14 giorni', giorni.length ? giorni.map((g) => `<div class="giorno">${esc(etichettaGiorno(g))}</div>` + eventiDi(g).filter((e) => filtroAgenda === 'tutti' || e.calendario === filtroAgenda).map((e) => rigaEvento(e)).join('')).join('') : '<div class="vuoto">Niente in agenda.</div>')}
+    <div class="col">
+      ${blocco('Più avanti', elenco(lontani.map((e) => rigaEvento(e, true)), 'Nessun evento oltre le due settimane.'))}
+      <div class="vuoto">L'agenda arriva da Google Calendar${D.agenda_aggiornata ? ` ed è aggiornata al ${fQuando.format(new Date(D.agenda_aggiornata))}` : ''}. Per aggiungere o spostare un evento, dillo ad ARGO.</div>
+    </div>
+  </div>`;
+}
+
+function vCalcio() {
+  const ora = new Date();
+  const mister = D.hq && D.hq.agenti && D.hq.agenti.mister;
+  const squadre = SQUADRE.map(([k, nome, re]) => {
+    const tutte = D.agenda.filter((e) => e.calendario === 'calcio' && re.test(e.titolo));
+    const g = tutte.filter((e) => !eAllenamento(e) && new Date(e.fine || e.inizio) >= ora);
+    const all = tutte.filter((e) => eAllenamento(e) && new Date(e.fine || e.inizio) >= ora).slice(0, 3);
+    return `<section class="box squadra"><h2>${esc(nome)}<small class="prossima">${g[0] ? esc(etichettaGiorno(chiave(g[0].inizio))) : ''}</small></h2>
+      ${elenco(g.map((e) => rigaEvento(e, true)), 'Nessuna gara in agenda.')}
+      ${all.length ? `<div class="giorno">Prossimi allenamenti</div>${all.map((e) => rigaEvento(e, true)).join('')}` : ''}</section>`;
+  }).join('');
+  return `
+  <div class="griglia tre-col">${squadre}</div>
+  <div class="griglia due-col" style="margin-top:16px">
+    ${blocco('Rapporto di Chirone', `<div class="dentro msg">${esc((mister && mister.rapporto) || 'Chirone prepara il weekend ogni venerdì alle 13:17.')}</div>`, mister && mister.aggiornato ? fQuando.format(new Date(mister.aggiornato)) : '')}
+    ${blocco('Appunti di campo', elenco(voci('calcio').map(rigaVoce), 'Convocati, risultati, cose da dire ai genitori: scrivile qui.') + `<div class="dentro"><button class="btn" data-nuova="calcio">Aggiungi appunto</button></div>`)}
+  </div>`;
+}
+
+function vMarga() {
+  const lav = voci('marga', 'lavoro'), sp = voci('marga', 'sponsor');
+  const somma = (arr, val) => arr.filter((v) => v.valuta === val).reduce((s, v) => s + (Number(v.importo) || 0), 0);
+  const anno = D.oggi.slice(0, 4);
+  const daInc = lav.filter((v) => v.stato === 'fatto'), pag = lav.filter((v) => v.stato === 'pagato' && String(v.data || v.creato).slice(0, 4) === anno);
+  const tot = (arr) => ['CHF', 'EUR'].map((v) => [somma(arr, v), v]).filter(([n]) => n).map(([n, v]) => soldi(n, v)).join(' + ') || '0';
+  const prossimi = lav.filter((v) => v.stato === 'da fare');
+  return `
+  <div class="numeri">
+    <div class="numero"><b>${prossimi.length}</b><span>lavori in programma</span></div>
+    <div class="numero ${daInc.length ? 'allarme' : ''}"><b>${tot(daInc)}</b><span>da incassare</span></div>
+    <div class="numero bene"><b>${tot(pag)}</b><span>incassato nel ${anno}</span></div>
+    <div class="numero"><b>${sp.filter((v) => v.stato === 'in trattativa').length}</b><span>sponsor in trattativa</span></div>
+  </div>
+  <div class="griglia due-col">
+    ${blocco('Lavori', elenco(lav.slice().sort((a, b) => String(b.data || '').localeCompare(String(a.data || ''))).map(rigaVoce), 'Nessun lavoro registrato. Aggiungi dirette, partite e riprese con il drone.') + `<div class="dentro"><button class="btn" data-nuova="marga" data-tipo="lavoro">Aggiungi lavoro</button></div>`)}
+    ${blocco('Sponsor', elenco(sp.map(rigaVoce), 'Nessuno sponsor in lista. Segna qui chi contattare per le dirette.') + `<div class="dentro"><button class="btn" data-nuova="marga" data-tipo="sponsor">Aggiungi sponsor</button></div>`)}
+  </div>`;
+}
+
+function vTeam() {
+  const ag = (D.hq && D.hq.agenti) || {};
+  const carte = ['segretaria', 'postino', 'cacciatore', 'mister'].map((k) => {
+    const a = ag[k] || {}; const [nome, ruolo] = AGENTI[k];
+    return blocco(`${nome}`, `<div class="dentro"><div class="msg" style="font-size:16px">${esc(a.rapporto || 'Nessun rapporto ancora.')}</div>
+      <div class="sotto" style="color:var(--dim);margin-top:8px">Prossimo turno: ${esc(a.prossimo || 'non fissato')}</div></div>`,
+      `${ruolo}, ${a.stato === 'lavoro' ? 'al lavoro' : 'in pausa'}`);
+  }).join('');
+  const reg = ((D.hq && D.hq.registro) || []).map((r) => `<div class="riga"><span class="ora" style="width:auto;min-width:74px">${esc((AGENTI[r.agente] || [r.agente])[0])}</span><span class="corpo">${esc(r.testo)}<div class="sotto">${fQuando.format(new Date(r.quando))}</div></span></div>`);
+  return `<div class="azioni" style="margin-bottom:16px"><a class="btn pieno" href="/">Apri l'ufficio degli agenti</a><a class="btn" href="https://claude.ai/project/01a1961b-5665-775d-a03e-5b0b09137490" target="_blank" rel="noopener">Parla con ARGO</a></div>
+  <div class="griglia due-col">${carte}</div><div style="height:16px"></div>${blocco('Registro attività', elenco(reg, 'Nessuna attività registrata.'))}`;
+}
+const notaPortale = () => `<div class="nota-portale">Il portale clienti di galvarent.com non risponde${D.portale.errore ? ` (${esc(D.portale.errore)})` : ''}. Il resto della plancia funziona.</div>`;
+
+function disegna() {
+  const sc = followScaduti().length;
+  $('schede').innerHTML = SEZIONI.map(([k, n]) => `<button data-sez="${k}" ${k === sez ? 'aria-current="page"' : ''}>${n}${k === 'clienti' && sc ? `<span class="conta">${sc}</span>` : ''}</button>`).join('');
+  const viste = { oggi: vOggi, clienti: vClienti, chiamate: vChiamate, agenda: vAgenda, calcio: vCalcio, marga: vMarga, team: vTeam };
+  const attivo = document.activeElement && document.activeElement.id === 'cerca';
+  $('vista').innerHTML = viste[sez]();
+  if (attivo && $('cerca')) { const c = $('cerca'); c.focus(); c.setSelectionRange(c.value.length, c.value.length); }
+}
+function vai(k) { sez = k; history.replaceState(null, '', '#' + k); disegna(); window.scrollTo(0, 0); }
+
+// ---------- Scheda ----------
+function apri(html, id) { aperta = id || true; $('scheda').innerHTML = html; document.body.classList.add('aperta'); $('scheda').scrollTop = 0; }
+function chiudi() { aperta = null; document.body.classList.remove('aperta'); }
+const testaScheda = (titolo, sotto = '') => `<header><div><h2>${esc(titolo)}</h2>${sotto ? `<div class="sotto" style="color:var(--dim)">${sotto}</div>` : ''}</div><button class="chiudi" data-chiudi>Chiudi</button></header>`;
+const opzioni = (lista, sel) => lista.map((o) => { const [v, n] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}" ${v === sel ? 'selected' : ''}>${esc(n)}</option>`; }).join('');
+
+function schedaLead(l) {
+  const tel = String(l.phone || '').replace(/[^\d+]/g, '');
+  const wa = tel.replace(/^\+/, '').replace(/^00/, '').replace(/^(?=3\d{8,9}$)/, '39');
+  const att = (l.activities || []).slice().reverse();
+  apri(`${testaScheda(l.name, esc(NOME_STATO[l.status] || l.status) + (l.clientType ? ', ' + esc(l.clientType) : ''))}
+    <div class="azioni">${tel ? `<a class="btn pieno" href="tel:${esc(tel)}">Chiama</a><a class="btn" href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a>` : ''}${l.email ? `<a class="btn grigio" href="mailto:${esc(l.email)}">Email</a>` : ''}</div>
+    <div class="sotto" style="color:var(--dim);margin-top:8px">${esc([l.phone, l.email].filter(Boolean).join(', '))}</div>
+    ${l.message ? `<h3>Richiesta</h3><div style="white-space:pre-line">${esc(l.message)}</div>` : ''}
+    <form data-form="lead" data-id="${esc(l.id)}">
+      <h3>Stato e follow-up</h3>
+      <div class="due"><label>Stato<select name="status">${opzioni(Object.entries(NOME_STATO), l.status)}</select></label>
+      <label>Prossimo follow-up<input type="date" name="nextFollowUpDate" value="${esc((l.nextFollowUpDate || '').slice(0, 10))}"></label></div>
+      <div class="azioni" style="margin-bottom:12px"><button type="button" class="btn grigio" data-giorni="2">Tra 2 giorni</button><button type="button" class="btn grigio" data-giorni="7">Tra una settimana</button></div>
+      <label ${l.status === 'chiuso_perso' ? '' : 'hidden'} data-perso>Motivo della perdita<input name="lostReason" value="${esc(l.lostReason || '')}"></label>
+      <h3>Trattativa</h3>
+      <label>Veicolo<input name="vehicleInterest" value="${esc(l.vehicleInterest || (l.source && l.source.carName) || '')}"></label>
+      <div class="due"><label>Canone mensile €<input name="estimatedFee" inputmode="decimal" value="${esc(l.estimatedFee ?? '')}"></label><label>Operatore<input name="partner" value="${esc(l.partner || '')}"></label></div>
+      <div class="due"><label>Durata mesi<input name="duration" inputmode="numeric" value="${esc(l.duration ?? '')}"></label><label>Km annui<input name="annualKm" inputmode="numeric" value="${esc(l.annualKm ?? '')}"></label></div>
+      <div class="due"><label>Anticipo €<input name="advance" inputmode="decimal" value="${esc(l.advance ?? '')}"></label><label>Provvigione stimata €<input name="estimatedCommission" inputmode="decimal" value="${esc(l.estimatedCommission ?? '')}"></label></div>
+      <button class="btn pieno" type="submit">Salva cliente</button>
+    </form>
+    <form data-form="attivita" data-id="${esc(l.id)}">
+      <h3>Registra attività</h3>
+      <label>Tipo<select name="tipo">${opzioni(TIPI_ATT, 'chiamata')}</select></label>
+      <label>Nota<textarea name="nota" placeholder="Cosa vi siete detti, cosa resta da fare"></textarea></label>
+      <button class="btn" type="submit">Registra attività</button>
+    </form>
+    <h3>Storico</h3>
+    ${att.length ? `<div class="storia">${att.map((a) => `<div><time>${fQuando.format(new Date(a.date))}, ${esc(a.type)}</time>${esc(a.note || '')}</div>`).join('')}</div>` : '<div class="sotto" style="color:var(--dim)">Nessuna attività registrata.</div>'}
+    <div class="sotto" style="color:var(--dim);margin-top:16px">Creato il ${fBreve.format(new Date(l.createdAt))}${l.source && l.source.page ? ', da ' + esc(l.source.page) : ''}</div>`, 'lead:' + l.id);
+}
+function schedaNuovoLead() {
+  apri(`${testaScheda('Nuovo cliente')}
+    <form data-form="nuovo-lead">
+      <label>Nome<input name="name" required autocomplete="off"></label>
+      <div class="due"><label>Telefono<input name="phone" type="tel" required></label><label>Email<input name="email" type="email"></label></div>
+      <div class="due"><label>Tipo<select name="clientType">${opzioni([['privato', 'Privato'], ['partita-iva', 'Partita IVA'], ['azienda', 'Azienda']], 'privato')}</select></label>
+      <label>Stato<select name="status">${opzioni(Object.entries(NOME_STATO).slice(0, 4), 'contattato')}</select></label></div>
+      <label>Veicolo<input name="vehicleInterest"></label>
+      <div class="due"><label>Operatore<input name="partner" placeholder="Ayvens, Leasys"></label><label>Prossimo follow-up<input type="date" name="nextFollowUpDate"></label></div>
+      <label>Note<textarea name="message"></textarea></label>
+      <button class="btn pieno" type="submit">Crea cliente</button>
+    </form>`, 'nuovo');
+}
+function schedaVoce(v, area, tipo) {
+  const nuova = !v; v = v || { area, tipo: tipo || (area === 'marga' ? 'lavoro' : area === 'todo' ? 'scadenza' : 'nota'), stato: area === 'marga' ? (tipo === 'sponsor' ? 'da contattare' : 'da fare') : 'aperto', valuta: area === 'marga' ? 'CHF' : 'EUR' };
+  const marga = v.area === 'marga', sponsor = v.tipo === 'sponsor';
+  const titoli = { todo: nuova ? 'Nuova scadenza' : 'Scadenza', calcio: nuova ? 'Nuovo appunto' : 'Appunto di campo', marga: sponsor ? (nuova ? 'Nuovo sponsor' : 'Sponsor') : (nuova ? 'Nuovo lavoro' : 'Lavoro') };
+  apri(`${testaScheda(titoli[v.area])}
+    <form data-form="voce" data-id="${esc(v.id || '')}" data-area="${esc(v.area)}" data-tipo="${esc(v.tipo)}">
+      <label>${sponsor ? 'Azienda' : marga ? 'Evento' : 'Cosa'}<input name="titolo" required value="${esc(v.titolo || '')}" autocomplete="off"></label>
+      <label>${marga && !sponsor ? 'Luogo e dettagli' : 'Dettagli'}<textarea name="dettaglio">${esc(v.dettaglio || '')}</textarea></label>
+      <div class="due"><label>${v.area === 'todo' ? 'Entro il' : 'Data'}<input type="date" name="data" value="${esc(v.data || '')}"></label>
+      ${marga ? `<label>Stato<select name="stato">${opzioni(sponsor ? STATI_SPONSOR : STATI_LAVORO, v.stato)}</select></label>` : v.area === 'todo' && !nuova ? `<label>Stato<select name="stato">${opzioni([['aperto', 'Da fare'], ['fatto', 'Fatto']], v.stato)}</select></label>` : '<span></span>'}</div>
+      ${marga ? `<div class="due"><label>${sponsor ? 'Valore' : 'Compenso'}<input name="importo" inputmode="decimal" value="${esc(v.importo ?? '')}"></label><label>Valuta<select name="valuta">${opzioni(['CHF', 'EUR'], v.valuta)}</select></label></div>` : ''}
+      <div class="azioni"><button class="btn pieno" type="submit">${nuova ? 'Aggiungi' : 'Salva'}</button>
+      ${!nuova && v.area === 'todo' && v.stato !== 'fatto' ? '<button type="button" class="btn verde" data-fatto>Segna come fatto</button>' : ''}
+      ${nuova ? '' : '<button type="button" class="btn rosso" data-elimina>Elimina</button>'}</div>
+    </form>`, 'voce');
+}
+function schedaEsito(p, esito) {
+  const titoli = { richiamare: 'Richiamare ' + p.name, non_interessato: p.name + ' non è interessato', interessato: p.name + ' è interessato', non_risponde: p.name + ' non risponde' };
+  apri(`${testaScheda(titoli[esito])}
+    <form data-form="esito" data-id="${esc(p.id)}" data-esito="${esc(esito)}">
+      ${esito === 'richiamare' ? `<label>Quando richiamare<input type="date" name="data" value="${piu(D.oggi, 3)}" min="${D.oggi}"></label>` : ''}
+      ${esito === 'interessato' ? '<p style="margin-bottom:10px">L\'azienda passa tra i clienti in stato "Contattato", con follow-up a 2 giorni lavorativi.</p>' : ''}
+      <label>Nota<textarea name="nota" placeholder="${esito === 'interessato' ? 'Cosa cerca, quanti mezzi, con chi hai parlato' : 'Facoltativa'}"></textarea></label>
+      <button class="btn pieno" type="submit">${esito === 'interessato' ? 'Passa ai clienti' : 'Registra esito'}</button>
+    </form>`, 'esito');
+}
+
+// ---------- Eventi ----------
+const datiForm = (f) => Object.fromEntries(new FormData(f).entries());
+async function conBlocco(f, fn) {
+  const b = f.querySelector('[type=submit]'); if (b) b.disabled = true;
+  try { await fn(); } catch { /* l'avviso è già stato mostrato */ } finally { if (b) b.disabled = false; }
+}
+function aggiornaLead(l) { const i = D.leads.findIndex((x) => x.id === l.id); if (i >= 0) D.leads[i] = l; else D.leads.unshift(l); }
+function aggiornaVoce(v) { const i = D.voci.findIndex((x) => x.id === v.id); if (i >= 0) D.voci[i] = v; else D.voci.push(v); }
+
+document.addEventListener('click', async (ev) => {
+  const t = ev.target.closest('button,a,[data-lead]'); if (!t) { if (ev.target.id === 'velo') chiudi(); return; }
+  const d = t.dataset;
+  if (t.id === 'riprova' || t.id === 'aggiorna') return carica();
+  if (d.sez) return vai(d.sez);
+  if (d.vai) return vai(d.vai);
+  if ('chiudi' in d) return chiudi();
+  if (d.filtro) { filtroLead = d.filtro; return disegna(); }
+  if (d.agenda) { filtroAgenda = d.agenda; return disegna(); }
+  if (d.lead) { const l = D.leads.find((x) => x.id === d.lead); if (l) schedaLead(l); return; }
+  if ('nuovoLead' in d) return schedaNuovoLead();
+  if (d.voce) { const v = D.voci.find((x) => x.id === d.voce); if (v) schedaVoce(v); return; }
+  if (d.nuova) return schedaVoce(null, d.nuova, d.tipo);
+  if (d.giorni) { const f = t.closest('form'); f.elements.nextFollowUpDate.value = piu(D.oggi, Number(d.giorni)); return; }
+  if (d.esito) {
+    const p = D.chiamate.coda.find((x) => x.id === t.closest('[data-pro]').dataset.pro); if (!p) return;
+    if (d.esito !== 'non_risponde') return schedaEsito(p, d.esito);
+    t.disabled = true;
+    try { await invia('chiamata_esito', { id: p.id, esito: 'non_risponde' }, 'Segnato: non risponde'); D.chiamate.coda = D.chiamate.coda.filter((x) => x.id !== p.id); disegna(); } catch { t.disabled = false; }
+    return;
+  }
+  if (d.azienda) {
+    t.disabled = true;
+    try { await invia('azienda_stato', { id: d.azienda, stato: d.stato }, d.stato === 'contattata' ? 'Segnata come contattata' : 'Scartata'); const a = D.aziende.find((x) => String(x.id) === d.azienda); if (a) a.stato = d.stato; disegna(); } catch { t.disabled = false; }
+    return;
+  }
+  const f = t.closest('form[data-form="voce"]');
+  if (f && ('elimina' in d || 'fatto' in d)) {
+    const id = f.dataset.id;
+    if ('elimina' in d) {
+      if (d.conferma !== '1') { t.dataset.conferma = '1'; t.textContent = 'Conferma eliminazione'; return; }
+      try { await invia('voce_elimina', { id }, 'Eliminata'); D.voci = D.voci.filter((x) => x.id !== id); chiudi(); disegna(); } catch { /* avviso mostrato */ }
+    } else {
+      try { aggiornaVoce(await invia('voce_salva', { dati: { id, stato: 'fatto' } }, 'Fatto')); chiudi(); disegna(); } catch { /* avviso mostrato */ }
+    }
+  }
+});
+document.addEventListener('change', (ev) => {
+  if (ev.target.name === 'status') { const p = ev.target.form.querySelector('[data-perso]'); if (p) p.hidden = ev.target.value !== 'chiuso_perso'; }
+});
+document.addEventListener('input', (ev) => { if (ev.target.id === 'cerca') { cerca = ev.target.value; disegna(); } });
+document.addEventListener('submit', (ev) => {
+  const f = ev.target; const tipo = f.dataset.form; if (!tipo) return;
+  ev.preventDefault();
+  const v = datiForm(f);
+  conBlocco(f, async () => {
+    if (tipo === 'lead') {
+      const l = await invia('lead_aggiorna', { id: f.dataset.id, campi: v }, 'Cliente salvato'); aggiornaLead(l); disegna(); schedaLead(l);
+    } else if (tipo === 'attivita') {
+      const l = await invia('lead_attivita', { id: f.dataset.id, tipo: v.tipo, nota: v.nota }, 'Attività registrata'); aggiornaLead(l); disegna(); schedaLead(l);
+    } else if (tipo === 'nuovo-lead') {
+      const l = await invia('lead_nuovo', { campi: v }, 'Cliente creato'); aggiornaLead(l); chiudi(); disegna();
+    } else if (tipo === 'voce') {
+      const dati = { ...v, area: f.dataset.area, tipo: f.dataset.tipo }; if (f.dataset.id) dati.id = f.dataset.id;
+      aggiornaVoce(await invia('voce_salva', { dati }, 'Salvato')); chiudi(); disegna();
+    } else if (tipo === 'esito') {
+      await invia('chiamata_esito', { id: f.dataset.id, esito: f.dataset.esito, nota: v.nota, data: v.data }, f.dataset.esito === 'interessato' ? 'Passato ai clienti' : 'Esito registrato');
+      chiudi(); await carica(true);
+    }
+  });
+});
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && aperta) chiudi(); });
+window.addEventListener('hashchange', () => { const k = location.hash.slice(1); if (SEZIONI.some(([s]) => s === k) && k !== sez) { sez = k; disegna(); } });
+setInterval(() => { if (!document.hidden && !aperta && Date.now() - ultimo > 60000 && !(document.activeElement && document.activeElement.id === 'cerca')) carica(true); }, 15000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !aperta && Date.now() - ultimo > 60000) carica(true); });
+carica();
+})();
+</script>
+</body>
+</html>

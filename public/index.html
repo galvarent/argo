@@ -23,6 +23,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .top h1{font:700 15px var(--px);margin:0;letter-spacing:1px}.top h1 span{color:var(--cyan)}
 .top .ora{font:400 11px var(--px);color:var(--dim)}
+.top .plancia{font:700 11px var(--px);color:#070b18;background:var(--cyan);padding:6px 10px;text-decoration:none;box-shadow:0 3px 0 #03050c;margin-left:auto;margin-right:10px}
 canvas{display:block;width:100%;aspect-ratio:240/336;border:2px solid var(--line);box-shadow:0 4px 0 #03050c;cursor:pointer;touch-action:manipulation}
 .box{border:2px solid var(--line);background:var(--panel);box-shadow:0 4px 0 #03050c;margin-top:12px}
 .box.argo{border-color:var(--cyan)}
@@ -50,7 +51,7 @@ ol{margin:8px 0 0;padding-left:28px}li{margin:3px 0}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><h1><span>ARGO</span> HQ</h1><div class="ora" id="ora"></div></div>
+  <div class="top"><h1><span>ARGO</span> HQ</h1><a class="plancia" href="/crm">Plancia</a><div class="ora" id="ora"></div></div>
   <canvas id="c" aria-label="Ufficio di ARGO con gli agenti al lavoro"></canvas>
 
   <section class="box argo">
@@ -70,7 +71,7 @@ ol{margin:8px 0 0;padding-left:28px}li{margin:3px 0}
   <h3>Stato</h3><div class="testo" id="sStato"></div>
   <h3>Ultimo rapporto</h3><div class="testo" id="sRapporto"></div>
   <h3>Prossimo turno</h3><div class="testo" id="sProssimo"></div>
-  <div class="nota">Per parlarne o dare ordini, apri il progetto ARGO su Claude.</div>
+  <div class="nota">Per parlarne o dare ordini, <a href="https://claude.ai/project/01a1961b-5665-775d-a03e-5b0b09137490" target="_blank" rel="noopener" style="color:var(--cyan)">apri ARGO su Claude</a>.</div>
 </section>
 
 <script>
