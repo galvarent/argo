@@ -248,7 +248,7 @@ const SEZIONI = [['oggi', 'Oggi'], ['clienti', 'Clienti'], ['chiamate', 'Chiamat
 const STATI = [['nuovo', 'Nuovi'], ['contattato', 'Contattati'], ['preventivo_inviato', 'Preventivo'], ['trattativa', 'Trattativa'], ['chiuso_vinto', 'Vinti'], ['chiuso_perso', 'Persi']];
 const NOME_STATO = Object.fromEntries([['nuovo', 'Nuovo'], ['contattato', 'Contattato'], ['preventivo_inviato', 'Preventivo inviato'], ['trattativa', 'In trattativa'], ['chiuso_vinto', 'Vinto'], ['chiuso_perso', 'Perso']]);
 const TIPI_ATT = [['chiamata', 'Chiamata'], ['whatsapp', 'WhatsApp'], ['email', 'Email'], ['preventivo', 'Preventivo'], ['appuntamento', 'Appuntamento'], ['nota', 'Nota']];
-const AGENTI = { segretaria: ['Penelope', 'Segretaria'], postino: ['Ermes', 'Postino'], cacciatore: ['Orione', 'Cacciatore'], mister: ['Chirone', 'Mister'], argo: ['ARGO', 'Capo'] };
+const AGENTI = { segretaria: ['Penelope', 'Segretaria'], postino: ['Ermes', 'Postino'], cacciatore: ['Orione', 'Cacciatore'], mister: ['Chirone', 'Mister'], sponsor: ['Pluto', 'Sponsor Marga TV'], argo: ['ARGO', 'Capo'] };
 const SQUADRE = [['pc', 'Primi Calci 2018', /primi calci/i], ['pu', 'Pulcini 2016/17', /pulcini|winter cup/i], ['ch', 'FC Chiasso', /chiasso/i]];
 const STATI_LAVORO = ['da fare', 'fatto', 'pagato'];
 const STATI_SPONSOR = ['da contattare', 'in trattativa', 'chiuso', 'perso'];
@@ -490,12 +490,30 @@ function vMarga() {
   <div class="griglia due-col">
     ${blocco('Lavori', elenco(lav.slice().sort((a, b) => String(b.data || '').localeCompare(String(a.data || ''))).map(rigaVoce), 'Nessun lavoro registrato. Aggiungi dirette, partite e riprese con il drone.') + `<div class="dentro"><button class="btn" data-nuova="marga" data-tipo="lavoro">Aggiungi lavoro</button></div>`)}
     ${blocco('Sponsor', elenco(sp.map(rigaVoce), 'Nessuno sponsor in lista. Segna qui chi contattare per le dirette.') + `<div class="dentro"><button class="btn" data-nuova="marga" data-tipo="sponsor">Aggiungi sponsor</button></div>`)}
-  </div>`;
+  </div>
+  ${blocco('Trovati da Pluto', elenco(sponsorTrovati(), 'Pluto non ha ancora trovato aziende. Gira il martedì e il giovedì.'), `${(D.sponsor || []).filter((x) => x.stato === 'nuovo').length} da contattare`)}`;
+}
+
+const STATI_SP = { nuovo: 'Da contattare', contattato: 'Contattato', interessato: 'Interessato', no: 'Non interessa', chiuso: 'Sponsor' };
+function sponsorTrovati() {
+  return (D.sponsor || []).filter((x) => x.stato !== 'no').slice(0, 40).map((x) => {
+    const mail = x.email ? `<a class="btn" href="mailto:${esc(x.email)}">Scrivi</a>` : '';
+    const sito = x.sito ? `<a class="btn grigio" href="${esc(/^https?:/.test(x.sito) ? x.sito : 'https://' + x.sito)}" target="_blank" rel="noopener">Sito</a>` : '';
+    const azioni = x.stato === 'nuovo'
+      ? `<button class="btn verde" data-sponsor="${x.id}" data-stato="contattato">Contattato</button><button class="btn grigio" data-sponsor="${x.id}" data-stato="no">Scarta</button>`
+      : x.stato === 'contattato' ? `<button class="btn verde" data-sponsor="${x.id}" data-stato="interessato">Interessato</button><button class="btn grigio" data-sponsor="${x.id}" data-stato="no">No</button>`
+      : x.stato === 'interessato' ? `<button class="btn verde" data-sponsor="${x.id}" data-stato="chiuso">Diventa sponsor</button>` : '';
+    return `<div class="riga"><span class="corpo"><b>${esc(x.nome)}</b> <span class="tag marga">${esc(STATI_SP[x.stato] || x.stato)}</span>
+      <div class="sotto">${esc([x.localita, x.settore, x.punteggio ? x.punteggio + '/5' : ''].filter(Boolean).join(' · '))}</div>
+      ${x.perche ? `<div class="sotto">${esc(x.perche)}</div>` : ''}${x.aggancio ? `<div class="sotto"><i>Aggancio: ${esc(x.aggancio)}</i></div>` : ''}
+      ${x.email ? `<div class="sotto">${esc(x.email)}</div>` : ''}
+      <div class="azioni" style="margin-top:8px">${mail}${sito}${azioni}</div></span></div>`;
+  });
 }
 
 function vTeam() {
   const ag = (D.hq && D.hq.agenti) || {};
-  const carte = ['segretaria', 'postino', 'cacciatore', 'mister'].map((k) => {
+  const carte = ['segretaria', 'postino', 'cacciatore', 'mister', 'sponsor'].map((k) => {
     const a = ag[k] || {}; const [nome, ruolo] = AGENTI[k];
     return blocco(`${nome}`, `<div class="dentro"><div class="msg" style="font-size:16px">${esc(a.rapporto || 'Nessun rapporto ancora.')}</div>
       <div class="sotto" style="color:var(--dim);margin-top:8px">Prossimo turno: ${esc(a.prossimo || 'non fissato')}</div></div>`,
@@ -622,6 +640,11 @@ document.addEventListener('click', async (ev) => {
     if (d.esito !== 'non_risponde') return schedaEsito(p, d.esito);
     t.disabled = true;
     try { await invia('chiamata_esito', { id: p.id, esito: 'non_risponde' }, 'Segnato: non risponde'); D.chiamate.coda = D.chiamate.coda.filter((x) => x.id !== p.id); disegna(); } catch { t.disabled = false; }
+    return;
+  }
+  if (d.sponsor) {
+    t.disabled = true;
+    try { await invia('sponsor_stato', { id: d.sponsor, stato: d.stato }, 'Aggiornato'); const x = (D.sponsor || []).find((y) => String(y.id) === d.sponsor); if (x) x.stato = d.stato; disegna(); } catch { t.disabled = false; }
     return;
   }
   if (d.azienda) {

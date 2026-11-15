@@ -131,7 +131,7 @@ button.riga.evento:active{background:var(--card2)}
 .fatto .tit{color:var(--dim);text-decoration:line-through}
 
 /* Agenti */
-.agenti{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.agenti{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .chip-ag{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:10px 4px;min-height:64px;color:var(--testo);font-size:12px;font-weight:600}
 .chip-ag[aria-expanded="true"]{border-color:var(--rosso-bordo);color:var(--ink)}
 .chip-ag.errore{border-color:#4A350E}
@@ -233,7 +233,7 @@ const fBreve = new Intl.DateTimeFormat('it-IT', { timeZone: TZ, day: 'numeric', 
 const P = window.ArgoParser;
 const chiave = P.chiaveRoma;
 const NOMI_CAL = { lavoro: 'GalvaRent', calcio: 'Calcio', personale: 'Personale' };
-const AGENTI = [['segretaria', 'Penelope', 'Segretaria'], ['postino', 'Ermes', 'Postino'], ['cacciatore', 'Orione', 'Cacciatore'], ['mister', 'Chirone', 'Mister']];
+const AGENTI = [['segretaria', 'Penelope', 'Segretaria'], ['postino', 'Ermes', 'Postino'], ['cacciatore', 'Orione', 'Cacciatore'], ['mister', 'Chirone', 'Mister'], ['sponsor', 'Pluto', 'Sponsor Marga TV']];
 
 let D = null, proposta = null, ultimo = 0;
 const oggi = () => (D && D.oggi) || P.oggiRoma();

@@ -275,6 +275,9 @@ async function scrivi(b) {
     case 'azienda_stato':
       if (!['nuova', 'contattata', 'scartata'].includes(b.stato)) throw new Error('Stato non valido');
       return rpc('argo_crm_scrivi', { p_op: 'azienda_stato', p_dati: { id: String(Number(b.id)), stato: b.stato } });
+    case 'sponsor_stato':
+      if (!['nuovo', 'contattato', 'interessato', 'no', 'chiuso'].includes(b.stato)) throw new Error('Stato non valido');
+      return rpc('argo_crm_scrivi', { p_op: 'sponsor_stato', p_dati: { id: String(Number(b.id)), stato: b.stato } });
     case 'cal_crea': {
       if (!googleAttivo()) throw new Error('Google Calendar non collegato: apri /api/google');
       if (!CAL_NOMI[b.calendario]) throw new Error('Calendario non valido');
