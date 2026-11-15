@@ -169,7 +169,7 @@
   }
   function radice(p) { return p.length > 5 ? p.slice(0, p.length - 2) : p; }
 
-  function trovaBersaglio(parole, eventi, oggi, dataOrigine) {
+  function trovaBersaglio(parole, eventi, oggi, dataOrigine, tutti) {
     const daOra = Date.now() - 3 * 3600000;
     let candidati = (eventi || []).filter((e) => e && e.inizio && new Date(e.fine || e.inizio).getTime() >= daOra);
     if (dataOrigine) candidati = candidati.filter((e) => chiaveRoma(e.inizio) === dataOrigine);
@@ -188,7 +188,11 @@
       return { e, p };
     }).filter((x) => x.p > 0);
     punteggi.sort((a, b) => b.p - a.p || new Date(a.e.inizio) - new Date(b.e.inizio));
-    return punteggi.length ? punteggi[0].e : null;
+    if (!punteggi.length) return tutti ? [] : null;
+    if (!tutti) return punteggi[0].e;
+    // Tutti gli eventi dello stesso giorno con il punteggio migliore (es. andata e ritorno).
+    const giorno = chiaveRoma(punteggi[0].e.inizio);
+    return punteggi.filter((x) => x.p === punteggi[0].p && chiaveRoma(x.e.inizio) === giorno).map((x) => x.e);
   }
 
   const fChiave = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Rome' });
@@ -212,6 +216,7 @@
     s = s.replace(RE_PROMEMORIA, ' ')
       .replace(/\b(aggiungi|metti|inserisci|segna|crea|fissa|programma)\b(\s+(un|una|in\s+calendario|in\s+agenda))?/gi, ' ')
       .replace(/\b(in\s+calendario|in\s+agenda|nel\s+calendario)\b/gi, ' ')
+      .replace(/^\s*(sono|sar[oò]|siamo|saremo|vado|andr[oò])\s+/i, ' ')
       .replace(/\s+/g, ' ').trim()
       .replace(/^(che|di|il|lo|la|alle|al|a|e|per)\s+/i, '')
       .replace(/\s+(di|del|il|lo|la|alle|al|a|e|per|ore|da)$/i, '')
@@ -249,7 +254,8 @@
         dubbi.push(parole.length ? `Non trovo in agenda un evento che corrisponda a «${parole.join(' ')}». Scegli l'evento o scrivilo con il nome che ha in calendario.` : 'Non ho capito quale evento cambiare.');
       }
       if (annulla) {
-        return { azione: 'annulla', bersaglio, dubbi, frase: testo };
+        const bersagli = trovaBersaglio(parole, o.eventi, oggi, dataOrigine, true);
+        return { azione: 'annulla', bersaglio, bersagli, dubbi, frase: testo };
       }
       const base = bersaglio || {};
       const data = destinazione ? destinazione.data : (bersaglio ? chiaveRoma(bersaglio.inizio) : (origine ? origine.data : oggi));

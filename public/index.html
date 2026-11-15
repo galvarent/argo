@@ -53,6 +53,13 @@ h2,.etichetta{font-size:13px;font-weight:600;color:var(--dim);letter-spacing:.06
 .ora{font-size:15px;font-weight:600;width:48px;flex:none;font-variant-numeric:tabular-nums}
 .vuoto{padding:16px;color:var(--dim);font-size:14px}
 .passato{opacity:.45}
+button.riga.evento{width:100%;background:transparent;border:0;border-bottom:1px solid var(--linea);text-align:left;color:inherit;border-radius:0}
+button.riga.evento:last-child{border-bottom:0}
+button.riga.evento:active{background:var(--card2)}
+.lista-canc{display:flex;flex-direction:column;gap:2px;border:1px solid var(--linea);border-radius:12px;overflow:hidden}
+.lista-canc label{display:flex;align-items:center;gap:12px;padding:12px;background:var(--fondo);font-size:15px;color:var(--testo);min-height:48px}
+.lista-canc input{width:22px;height:22px;accent-color:var(--rosso);flex:none}
+.lista-canc .sotto{display:block}
 
 .tag{font-size:12px;font-weight:600;padding:4px 9px;border-radius:999px;flex:none;background:var(--linea);color:var(--tenue)}
 .tag.lavoro{background:var(--rosso-fondo);color:#FF8A7E}
@@ -140,7 +147,7 @@ nav button.mic.ascolta span.cerchio{animation:pulsa 1.2s ease-in-out infinite}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
     </form>
-    <p class="esempio">Es. «Amichevole sabato alle 10 ad Albate», «Sposta la visita a domani alle 11», «Allenamento di lunedì annullato»</p>
+    <p class="esempio">Es. «Amichevole sabato alle 10 ad Albate», «Sposta la visita a domani alle 11», «Accompagnamento Thomas di domani annullato». Tocca un evento in agenda per spostarlo o eliminarlo.</p>
     <p class="nota-g" id="notaGoogle" hidden></p>
     <div id="proposta" aria-live="polite"></div>
   </section>
@@ -234,9 +241,9 @@ function stato() {
 // ---------- Disegno ----------
 function rigaEvento(e) {
   const passato = new Date(e.fine || e.inizio) < new Date() && !e.tutto_giorno;
-  return `<div class="riga${passato ? ' passato' : ''}"><span class="ora">${oraTesto(e)}</span>
+  return `<button type="button" class="riga evento${passato ? ' passato' : ''}" data-ev="${esc(e.id)}" aria-label="${esc(e.titolo)}: sposta o elimina"><span class="ora">${oraTesto(e)}</span>
     <span class="corpo"><span class="tit">${esc(e.titolo)}</span>${e.luogo ? `<span class="sotto">${esc(e.luogo)}</span>` : ''}</span>
-    <span class="tag ${esc(e.calendario)}">${esc(NOMI_CAL[e.calendario] || e.calendario)}</span></div>`;
+    <span class="tag ${esc(e.calendario)}">${esc(NOMI_CAL[e.calendario] || e.calendario)}</span></button>`;
 }
 const elenco = (righe, vuoto) => (righe.length ? righe.join('') : `<div class="vuoto">${vuoto}</div>`);
 const eventiDi = (k) => (D.agenda || []).filter((e) => chiave(e.inizio) === k);
@@ -360,11 +367,21 @@ function disegnaProposta() {
         <label>Alle<input type="time" name="oraFine" value="${esc(r.oraFine)}"></label>
       </div>`;
   } else {
-    titolo = 'Annulla un evento';
+    const scelti = new Set((r.bersagli && r.bersagli.length ? r.bersagli : (r.bersaglio ? [r.bersaglio] : [])).map((e) => e.id));
+    const primo = (r.bersagli && r.bersagli[0]) || r.bersaglio;
+    titolo = scelti.size > 1 ? 'Elimina eventi' : 'Elimina un evento';
     conferma = 'Elimina dal calendario';
-    const b = r.bersaglio;
-    corpo = `<div class="campi"><label class="tutta">Evento<select name="id">${opzioniEventi(b)}</select></label></div>
-      <p class="avviso-canc">Lo tolgo da Google Calendar. Se ti serve ancora, resta nel cestino di Google per 30 giorni.</p>`;
+    if (primo) {
+      const giorno = chiave(primo.inizio);
+      const delGiorno = eventiDi(giorno).slice().sort((x, y) => new Date(x.inizio) - new Date(y.inizio));
+      corpo = `<span class="sotto">${esc(giornoTesto(giorno))}: spunta quelli da togliere</span>
+        <div class="lista-canc">${delGiorno.map((e) => `<label><input type="checkbox" name="ids" value="${esc(e.id)}" ${scelti.has(e.id) ? 'checked' : ''}>
+          <span><span class="tit">${esc(oraTesto(e))} · ${esc(e.titolo)}</span>${e.luogo ? `<span class="sotto">${esc(e.luogo)}</span>` : ''}</span></label>`).join('')}</div>`;
+    } else {
+      corpo = `<div class="campi"><label class="tutta">Evento<select name="ids">${opzioniEventi(null)}</select></label></div>`;
+    }
+    corpo += `<p class="avviso-canc">Li tolgo da Google Calendar. Se ti servono ancora, restano nel cestino di Google per 30 giorni.</p>`;
+    if (r.daRiga) corpo += `<button type="button" class="btn" id="spostaInvece" data-id="${esc(r.daRiga)}">Spostalo invece</button>`;
   }
   box.innerHTML = `<form class="proposta" id="formProposta" data-azione="${r.azione}">
     <span class="etichetta">ARGO ha capito · ${esc(titolo)}</span>
@@ -399,18 +416,30 @@ async function conferma(f) {
       disegna(); proposta = null;
       esito(`Spostato: ${ev.titolo}, ${giornoTesto(chiave(ev.inizio)).toLowerCase()}${ev.tutto_giorno ? '' : ' alle ' + fOra.format(new Date(ev.inizio))}`);
     } else {
-      if (!v.id) throw new Error('Scegli l\'evento da annullare');
-      const vecchio = D.agenda.find((x) => x.id === v.id);
-      await invia('cal_annulla', { id: v.id });
-      D.agenda = D.agenda.filter((x) => x.id !== v.id);
+      const ids = new FormData(f).getAll('ids').filter(Boolean);
+      if (!ids.length) throw new Error('Spunta almeno un evento');
+      const tolti = [];
+      for (const id of ids) {
+        const vecchio = D.agenda.find((x) => x.id === id);
+        await invia('cal_annulla', { id });
+        D.agenda = D.agenda.filter((x) => x.id !== id);
+        tolti.push(vecchio ? vecchio.titolo : 'evento');
+      }
       disegna(); proposta = null;
-      esito(`Annullato: ${vecchio ? vecchio.titolo : 'evento'}`);
+      esito(`Eliminato: ${tolti.join(', ')}`);
     }
     $('rapida').value = '';
   } catch (e) {
     b.disabled = false;
     avvisa(e.message, true);
   }
+}
+
+function apriEvento(id) {
+  const e = (D.agenda || []).find((x) => x.id === id); if (!e) return;
+  proposta = { azione: 'annulla', bersaglio: e, bersagli: [e], dubbi: String(e.id).startsWith('g:') ? [] : ['Questo evento è nella copia salvata, non in Google: si potrà eliminare dopo il collegamento.'], daRiga: e.id };
+  disegnaProposta();
+  $('proposta').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ---------- Voce ----------
@@ -448,6 +477,13 @@ document.addEventListener('click', (ev) => {
   const t = ev.target.closest('button'); if (!t) return;
   if (t.id === 'aggiorna') return carica();
   if (t.id === 'annullaProposta') { proposta = null; disegnaProposta(); return; }
+  if (t.dataset.ev) return apriEvento(t.dataset.ev);
+  if (t.id === 'spostaInvece') {
+    const e = (D.agenda || []).find((x) => x.id === t.dataset.id); if (!e) return;
+    proposta = { azione: 'sposta', bersaglio: e, dubbi: [], titolo: e.titolo, calendario: e.calendario, luogo: e.luogo || '',
+      data: chiave(e.inizio), ora: e.tutto_giorno ? '' : fOra.format(new Date(e.inizio)), oraFine: e.fine ? fOra.format(new Date(e.fine)) : '' };
+    disegnaProposta(); return;
+  }
   if (t.dataset.pri !== undefined) {
     const i = Number(t.dataset.pri); const f = leggiFatte();
     scriviFatte(f.includes(i) ? f.filter((x) => x !== i) : [...f, i]);
