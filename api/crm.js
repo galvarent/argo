@@ -98,6 +98,8 @@ async function calendariGoogle() {
     const n = normNome(c.summaryOverride || c.summary);
     Object.entries(CAL_NOMI).forEach(([k, nome]) => { if (n === nome && !mappa[k]) mappa[k] = c.id; });
   });
+  // Senza un calendario chiamato "GalvaRent", il lavoro va sul calendario principale dell'account.
+  if (!mappa.lavoro) { const p = (j.items || []).find((c) => c.primary); if (p) mappa.lavoro = p.id; }
   gCalendari = mappa; gCalendariQuando = Date.now();
   return mappa;
 }
