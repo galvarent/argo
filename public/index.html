@@ -469,6 +469,7 @@ document.addEventListener('change', (ev) => {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - ultimo > 5 * 60000) carica(); });
 
 $('data').textContent = fLungo.format(new Date());
+if (location.hash === '#rapida') { history.replaceState(null, '', '/'); $('rapida').focus(); }
 carica();
 })();
 </script>
