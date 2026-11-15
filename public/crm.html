@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ARGO">
-<meta name="theme-color" content="#070b18">
+<meta name="theme-color" content="#0A0A0A">
 <meta name="robots" content="noindex,nofollow">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icon-180.png">
@@ -13,13 +13,13 @@
 <title>ARGO – Plancia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --fondo:#070b18;--panel:#121a33;--panel2:#18224a;--line:#2a3970;--ombra:#03050c;
-  --ink:#e9f0ff;--dim:#8a97c4;--cyan:#5ee6d0;
-  --lavoro:#f2b84b;--calcio:#7ddc6a;--personale:#a99bff;--marga:#ff6b8a;--rosso:#ff5d5d;
-  --px:Silkscreen,monospace;--ui:"Chakra Petch",system-ui,sans-serif;
+  --fondo:#0A0A0A;--panel:#151515;--panel2:#1C1C1C;--line:#262626;--ombra:transparent;
+  --ink:#F5F5F5;--dim:#9CA3AF;--cyan:#FF6A5C;
+  --lavoro:#FF6A5C;--calcio:#4ADE80;--personale:#A99BFF;--marga:#7AA2FF;--rosso:#F59E0B;
+  --px:Inter,system-ui,sans-serif;--ui:Inter,system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -159,6 +159,28 @@ label>input,label>select,label>textarea{margin-top:3px;color:var(--ink);font-siz
 }
 @media (max-width:1099px){.fondo-nav{display:none}}
 @media (prefers-reduced-motion:reduce){.scheda{transition:none}}
+
+/* Stile GalvaRent: bordi sottili, angoli morbidi, testo leggibile */
+.box,.numero,.carta,.colonna{border-width:1px;border-radius:16px;overflow:hidden}
+.box>h2,.colonna h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);background:transparent;border-bottom-width:1px}
+.box.argo{border-color:#3A1A17}.box.argo>h2{color:#FF8A7E;border-color:#3A1A17}
+.marchio{font-size:17px;letter-spacing:0}.marchio span{color:var(--ink)}
+.schede button{font-weight:500;border-radius:10px 10px 0 0}
+.testa{border-bottom-width:1px}
+.btn{border-width:1px;border-radius:12px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.btn.pieno{background:#DC3427;border-color:#DC3427;color:#fff}
+.btn.grigio{color:#C4C9D0}
+.filtri button{border-width:1px;border-radius:999px}
+.tag{border-radius:999px}
+input,select,textarea{border-width:1px;border-radius:10px}
+.giorno{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.chiudi{border-width:1px;border-radius:10px;font-size:13px}
+.scheda h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.scheda{border-top-width:1px;border-left-width:1px;border-color:var(--line)}
+.avviso{background:#DC3427;color:#fff;border-radius:12px}
+.avviso.errore{background:#F59E0B;color:#1a1205}
+.nota-portale{border-width:1px;border-radius:14px}
+.riga{border-bottom-style:solid}
 </style>
 </head>
 <body>
@@ -170,7 +192,7 @@ label>input,label>select,label>textarea{margin-top:3px;color:var(--ink);font-siz
     </div>
     <nav class="schede" id="schede" aria-label="Sezioni"></nav>
     <div class="fondo-nav">
-      <a class="btn grigio" href="/">Ufficio degli agenti</a>
+      <a class="btn grigio" href="/">Home Oggi</a><a class="btn grigio" href="/ufficio">Ufficio degli agenti</a>
       <a class="btn" href="https://claude.ai/project/01a1961b-5665-775d-a03e-5b0b09137490" target="_blank" rel="noopener">Parla con ARGO</a>
     </div>
   </header>
@@ -455,7 +477,7 @@ function vTeam() {
       `${ruolo}, ${a.stato === 'lavoro' ? 'al lavoro' : 'in pausa'}`);
   }).join('');
   const reg = ((D.hq && D.hq.registro) || []).map((r) => `<div class="riga"><span class="ora" style="width:auto;min-width:74px">${esc((AGENTI[r.agente] || [r.agente])[0])}</span><span class="corpo">${esc(r.testo)}<div class="sotto">${fQuando.format(new Date(r.quando))}</div></span></div>`);
-  return `<div class="azioni" style="margin-bottom:16px"><a class="btn pieno" href="/">Apri l'ufficio degli agenti</a><a class="btn" href="https://claude.ai/project/01a1961b-5665-775d-a03e-5b0b09137490" target="_blank" rel="noopener">Parla con ARGO</a></div>
+  return `<div class="azioni" style="margin-bottom:16px"><a class="btn pieno" href="/ufficio">Apri l'ufficio degli agenti</a><a class="btn" href="https://claude.ai/project/01a1961b-5665-775d-a03e-5b0b09137490" target="_blank" rel="noopener">Parla con ARGO</a></div>
   <div class="griglia due-col">${carte}</div><div style="height:16px"></div>${blocco('Registro attività', elenco(reg, 'Nessuna attività registrata.'))}`;
 }
 const notaPortale = () => `<div class="nota-portale">Il portale clienti di galvarent.com non risponde${D.portale.errore ? ` (${esc(D.portale.errore)})` : ''}. Il resto della plancia funziona.</div>`;
