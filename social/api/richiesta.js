@@ -1,8 +1,8 @@
 // POST /api/richiesta – il modulo "Calcola il tuo canone".
 // Salva la richiesta (solo con il consenso privacy) e manda subito la mail di conferma.
 
-const { rpc, sito } = require('../lib/archivio');
-const posta = require('../lib/posta');
+const { rpc } = require('../lib/archivio');
+const argo = require('../lib/argo');
 
 const testo = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
 
@@ -35,14 +35,8 @@ module.exports = async (req, res) => {
     res.statusCode = 400; return res.end(JSON.stringify({ error: err }));
   }
 
-  if (dati.email && posta.attiva()) {
-    try {
-      const r = await sito('leggi', id);
-      if (r && !r.mail1) {
-        await posta.invia(r.email, posta.mail1(r));
-        await sito('mail1', id);
-      }
-    } catch (e) { console.error('mail1', e && e.message); }
+  if (dati.email) {
+    try { await argo({ op: 'mail1', id }); } catch (e) { console.error('mail1', e && e.message); }
   }
   res.statusCode = 200;
   res.end(JSON.stringify({ ok: true }));

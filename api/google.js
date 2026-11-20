@@ -79,8 +79,7 @@ module.exports = async (req, res) => {
     <ol>
       <li>Copia questo valore:<br><textarea readonly onclick="this.select()">${esc(j.refresh_token)}</textarea></li>
       <li>Su Vercel, progetto <b>argo</b> → Settings → Environment Variables: modifica <code>GOOGLE_REFRESH_TOKEN</code> e incolla questo valore (Production).</li>
-      <li>Nel progetto <b>galvarent-social</b>, stessa sezione, crea tre variabili (Production): <code>GOOGLE_REFRESH_TOKEN</code> con questo valore, e <code>GOOGLE_CLIENT_ID</code> e <code>GOOGLE_CLIENT_SECRET</code> uguali a quelle del progetto argo. Servono per mandare le mail del sito.</li>
-      <li>Dillo ad ARGO: rifà lui la pubblicazione dei due progetti.</li>
+      <li>Dillo ad ARGO: ripubblica lui il progetto.</li>
     </ol>
     <p class="nota">Non condividere questo valore: dà accesso al tuo calendario e all'invio di mail dalla tua casella. Puoi revocarlo quando vuoi da myaccount.google.com → Sicurezza → App di terze parti.</p>
     <a class="btn" href="/">Torna ad ARGO</a>`, { 'Set-Cookie': 'argo_g=; Path=/api/google; Max-Age=0' }));
