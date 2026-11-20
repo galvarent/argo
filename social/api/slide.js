@@ -28,11 +28,11 @@ function carica() {
 const h = (type, style, children, props) => ({ type, props: { style, children, ...(props || {}) } });
 const testo = (t, style) => h('div', { display: 'flex', ...style }, String(t || ''));
 
-function testata(n, tot) {
+function testata(n, tot, rubrica) {
   return h('div', { display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }, [
     h('div', { display: 'flex', alignItems: 'center', gap: 16 }, [
       h('div', { width: 44, height: 8, background: ROSSO, borderRadius: 4 }),
-      testo('NOLEGGIO A LUNGO TERMINE', { fontSize: 24, fontWeight: 700, letterSpacing: 3, color: TENUE }),
+      testo(String(rubrica || 'Noleggio a lungo termine').toUpperCase(), { fontSize: 24, fontWeight: 700, letterSpacing: 3, color: TENUE }),
     ]),
     tot > 1 ? testo(`${n}/${tot}`, { fontSize: 26, fontWeight: 600, color: TENUE }) : h('div', {}, ''),
   ]);
@@ -114,11 +114,11 @@ function corpo(s) {
   ].filter(Boolean));
 }
 
-function slide(s, n, tot, logo) {
+function slide(s, n, tot, logo, rubrica) {
   return h('div', {
     display: 'flex', flexDirection: 'column', width: W, height: H, background: NERO,
     padding: '64px 64px 56px', fontFamily: 'Inter', color: BIANCO, gap: 40,
-  }, [testata(n, tot), corpo(s), piede(logo, (s.tipo || 'testo') !== 'cta')]);
+  }, [testata(n, tot, s.rubrica || rubrica), corpo(s), piede(logo, (s.tipo || 'testo') !== 'cta')]);
 }
 
 async function disegna(dati, n) {
@@ -130,7 +130,7 @@ async function disegna(dati, n) {
   const s = slides[n - 1] ? { ...slides[n - 1] } : null;
   if (!s) return null;
   [s.immagine, s.immagine2] = await Promise.all([incorpora(s.immagine), incorpora(s.immagine2)]);
-  const svg = await satori(slide(s, n, slides.length, logo), { width: W, height: H, fonts });
+  const svg = await satori(slide(s, n, slides.length, logo, slides[0] && slides[0].rubrica), { width: W, height: H, fonts });
   const png = new Resvg(svg, { fitTo: { mode: 'width', value: W } }).render().asPng();
   return sharp(png).jpeg({ quality: 90, mozjpeg: true }).toBuffer();
 }
