@@ -15,7 +15,7 @@ const NERO = '#0A0A0A', CARD = '#151515', LINEA = '#262626', ROSSO = '#E83F31', 
 let risorse = null;
 function carica() {
   if (risorse) return risorse;
-  const font = (peso) => fs.readFileSync(require.resolve(`@fontsource/inter/files/inter-latin-${peso}-normal.woff`));
+  const font = (peso) => fs.readFileSync(path.join(__dirname, '..', 'assets', `inter-latin-${peso}-normal.woff`));
   const logo = fs.readFileSync(path.join(__dirname, '..', 'assets', 'galvarent.svg'));
   risorse = {
     fonts: [400, 600, 700, 800].map((w) => ({ name: 'Inter', data: font(w), weight: w, style: 'normal' })),
@@ -172,6 +172,7 @@ module.exports = async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300');
     res.end(jpg);
   } catch (e) {
+    console.error('slide', e && e.stack || e);
     res.statusCode = 500;
     res.end('Errore nel disegnare la slide');
   }
