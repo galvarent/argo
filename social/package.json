@@ -1,0 +1,12 @@
+{
+  "name": "galvarent-social",
+  "private": true,
+  "description": "Generatore delle immagini dei post Instagram di GalvaRent (pubblico, solo lettura)",
+  "engines": { "node": "22.x" },
+  "dependencies": {
+    "@fontsource/inter": "5.1.0",
+    "@resvg/resvg-js": "2.6.2",
+    "satori": "0.10.14",
+    "sharp": "0.33.5"
+  }
+}

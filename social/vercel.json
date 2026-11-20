@@ -1,0 +1,5 @@
+{
+  "regions": ["fra1"],
+  "functions": { "api/slide.js": { "memory": 1024, "maxDuration": 20, "includeFiles": "assets/**" } },
+  "rewrites": [{ "source": "/", "destination": "/api/slide?p=demo&n=1" }]
+}
