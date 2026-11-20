@@ -55,6 +55,18 @@ function immagine(url, w, hgt) {
 function corpo(s) {
   const tipo = s.tipo || 'testo';
   if (tipo === 'copertina') {
+    // Con due foto: la principale grande in alto, la seconda più piccola sotto il testo, a destra.
+    if (s.immagine && s.immagine2) {
+      return h('div', { display: 'flex', flexDirection: 'column', gap: 24, flexGrow: 1, justifyContent: 'center' }, [
+        s.etichetta ? testo(s.etichetta.toUpperCase(), { fontSize: 30, fontWeight: 800, color: ROSSO, letterSpacing: 2 }) : null,
+        immagine(s.immagine, 960, 400),
+        testo(s.titolo, { fontSize: s.titolo && s.titolo.length > 30 ? 76 : 92, fontWeight: 800, color: BIANCO, lineHeight: 1.05, letterSpacing: -2 }),
+        h('div', { display: 'flex', alignItems: 'center', gap: 28, width: '100%' }, [
+          s.testo ? testo(s.testo, { fontSize: 34, color: GRIGIO, lineHeight: 1.35, flex: 1 }) : h('div', { display: 'flex', flex: 1 }, ''),
+          immagine(s.immagine2, 400, 240),
+        ]),
+      ].filter(Boolean));
+    }
     return h('div', { display: 'flex', flexDirection: 'column', gap: 28, flexGrow: 1, justifyContent: 'center' }, [
       s.etichetta ? testo(s.etichetta.toUpperCase(), { fontSize: 30, fontWeight: 800, color: ROSSO, letterSpacing: 2 }) : null,
       testo(s.titolo, { fontSize: s.titolo && s.titolo.length > 40 ? 84 : 104, fontWeight: 800, color: BIANCO, lineHeight: 1.05, letterSpacing: -2 }),
@@ -117,7 +129,7 @@ async function disegna(dati, n) {
   const slides = dati.slides || [];
   const s = slides[n - 1] ? { ...slides[n - 1] } : null;
   if (!s) return null;
-  s.immagine = await incorpora(s.immagine);
+  [s.immagine, s.immagine2] = await Promise.all([incorpora(s.immagine), incorpora(s.immagine2)]);
   const svg = await satori(slide(s, n, slides.length, logo), { width: W, height: H, fonts });
   const png = new Resvg(svg, { fitTo: { mode: 'width', value: W } }).render().asPng();
   return sharp(png).jpeg({ quality: 90, mozjpeg: true }).toBuffer();
