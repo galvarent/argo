@@ -131,7 +131,7 @@ button.riga.evento:active{background:var(--card2)}
 .fatto .tit{color:var(--dim);text-decoration:line-through}
 
 /* Agenti */
-.agenti{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.agenti{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .chip-ag{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:10px 4px;min-height:64px;color:var(--testo);font-size:12px;font-weight:600}
 .chip-ag[aria-expanded="true"]{border-color:var(--rosso-bordo);color:var(--ink)}
 .chip-ag.errore{border-color:#4A350E}
@@ -199,7 +199,7 @@ nav button.mic.ascolta span.cerchio{animation:pulsa 1.2s ease-in-out infinite}
   </section>
 
   <section aria-labelledby="h-fu" id="sezFollow">
-    <div class="titolo-sez"><h2 id="h-fu">Da richiamare</h2><a href="/crm#clienti">Tutti</a></div>
+    <div class="titolo-sez"><h2 id="h-fu">Da fare</h2><a href="/crm#clienti">Clienti</a></div>
     <div class="scatola" id="follow"></div>
   </section>
 
@@ -233,7 +233,7 @@ const fBreve = new Intl.DateTimeFormat('it-IT', { timeZone: TZ, day: 'numeric', 
 const P = window.ArgoParser;
 const chiave = P.chiaveRoma;
 const NOMI_CAL = { lavoro: 'GalvaRent', calcio: 'Calcio', personale: 'Personale' };
-const AGENTI = [['segretaria', 'Penelope', 'Segretaria'], ['postino', 'Ermes', 'Postino'], ['cacciatore', 'Orione', 'Cacciatore'], ['mister', 'Chirone', 'Mister'], ['sponsor', 'Pluto', 'Sponsor Marga TV']];
+const AGENTI = [['segretaria', 'Penelope', 'Segretaria'], ['postino', 'Ermes', 'Postino'], ['cacciatore', 'Orione', 'Cacciatore'], ['mister', 'Chirone', 'Mister'], ['sponsor', 'Pluto', 'Sponsor Marga TV'], ['social', 'Calliope', 'Social GalvaRent']];
 
 let D = null, proposta = null, ultimo = 0;
 const oggi = () => (D && D.oggi) || P.oggiRoma();
@@ -371,7 +371,13 @@ function disegnaFollow() {
   const leads = (D.leads || []).filter((l) => !String(l.status).startsWith('chiuso') && l.nextFollowUpDate && l.nextFollowUpDate.slice(0, 10) <= k)
     .sort((a, b) => a.nextFollowUpDate.localeCompare(b.nextFollowUpDate));
   const richiami = ((D.chiamate && D.chiamate.coda) || []).filter((p) => p.status === 'richiamare');
+  const bozze = (D.post || []).filter((p) => p.stato === 'bozza').length;
+  const pronte = (D.aziende || []).filter((a) => a.stato === 'pronta').length;
+  const extra = [];
+  if (bozze) extra.push(`<div class="riga"><span class="corpo"><span class="tit">${bozze === 1 ? '1 post' : bozze + ' post'} da approvare</span><span class="sotto">Calliope · Instagram GalvaRent</span></span><a class="btn morbido" href="/crm#social">Guarda</a></div>`);
+  if (pronte) extra.push(`<div class="riga"><span class="corpo"><span class="tit">${pronte === 1 ? '1 azienda pronta' : pronte + ' aziende pronte'} da contattare</span><span class="sotto">Schede di Orione con cosa dire</span></span><a class="btn morbido" href="/crm#chiamate">Apri</a></div>`);
   const righe = [
+    ...extra,
     ...leads.map((l) => {
       const d = l.nextFollowUpDate.slice(0, 10);
       const tel = String(l.phone || '').replace(/[^\d+]/g, '');
@@ -384,7 +390,7 @@ function disegnaFollow() {
       return `<div class="riga"><span class="corpo"><span class="tit">Richiamare ${esc(p.name)}</span><span class="sotto">${esc([p.category, p.zone].filter(Boolean).join(' · '))}</span></span>
         ${tel ? `<a class="btn morbido" href="tel:${esc(tel)}">Chiama</a>` : `<a class="btn morbido" href="/crm#chiamate">Apri</a>`}</div>`;
     }),
-  ].slice(0, 3);
+  ].slice(0, 4);
   const noPortale = D.portale && !D.portale.ok;
   $('sezFollow').hidden = !righe.length && !noPortale;
   $('follow').innerHTML = elenco(righe, 'Il portale clienti non risponde in questo momento.');

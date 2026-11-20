@@ -272,9 +272,20 @@ async function scrivi(b) {
     case 'voce_elimina':
       if (!idOk(b.id)) throw new Error('Voce non valida');
       return rpc('argo_crm_scrivi', { p_op: 'voce_elimina', p_dati: { id: b.id } });
-    case 'azienda_stato':
-      if (!['nuova', 'contattata', 'scartata'].includes(b.stato)) throw new Error('Stato non valido');
-      return rpc('argo_crm_scrivi', { p_op: 'azienda_stato', p_dati: { id: String(Number(b.id)), stato: b.stato } });
+    case 'azienda_stato': {
+      if (!['nuova', 'pronta', 'contattata', 'interessata', 'preventivo', 'ordine', 'scartata'].includes(b.stato)) throw new Error('Stato non valido');
+      const d = { id: String(Number(b.id)), stato: b.stato };
+      if (typeof b.note === 'string') d.note = b.note.slice(0, 1000);
+      return rpc('argo_crm_scrivi', { p_op: 'azienda_stato', p_dati: d });
+    }
+    case 'post_stato': {
+      if (!idOk(b.id)) throw new Error('Post non valido');
+      if (!['bozza', 'approvato', 'scartato'].includes(b.stato)) throw new Error('Stato non valido');
+      const d = { id: b.id, stato: b.stato };
+      if (typeof b.nota === 'string') d.nota = b.nota.slice(0, 1000);
+      if (typeof b.didascalia === 'string') d.didascalia = b.didascalia.slice(0, 2200);
+      return rpc('argo_crm_scrivi', { p_op: 'post_stato', p_dati: d });
+    }
     case 'sponsor_stato':
       if (!['nuovo', 'contattato', 'interessato', 'no', 'chiuso'].includes(b.stato)) throw new Error('Stato non valido');
       return rpc('argo_crm_scrivi', { p_op: 'sponsor_stato', p_dati: { id: String(Number(b.id)), stato: b.stato } });

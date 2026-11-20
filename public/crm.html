@@ -191,6 +191,16 @@ input,select,textarea{border-width:1px;border-radius:10px}
 .barra-giu .cerchio{width:60px;height:60px;border-radius:50%;background:#E83F31;display:flex;align-items:center;justify-content:center;margin-top:-26px;box-shadow:0 0 0 6px var(--fondo),0 0 28px rgba(232,63,49,.35)}
 .vista{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 110px)}
 @media (min-width:1100px){.barra-giu{display:none}.vista{padding-bottom:60px}}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scroll-snap-type:x mandatory}
+.strip img{width:150px;height:188px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex:none;scroll-snap-align:start;background:#151515}
+.post{border-top:1px solid var(--line);padding:14px 16px}
+.post:first-of-type{border-top:0}
+.post textarea{width:100%;min-height:120px;font:15px/1.45 var(--ui);background:transparent;color:inherit;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:6px}
+.imbuto{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-bottom:16px}
+.imbuto .numero b{font-size:26px}
+.scheda-az{margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px}
+.scheda-az b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-top:6px}
+.scheda-az b:first-child{margin-top:0}
 </style>
 </head>
 <body>
@@ -244,11 +254,11 @@ const daChiave = (k) => new Date(k + 'T12:00:00Z');
 const piu = (k, n) => { const d = daChiave(k); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const soldi = (n, v = 'EUR') => (n === null || n === undefined || n === '' ? '' : new Intl.NumberFormat('it-IT', { style: 'currency', currency: v, maximumFractionDigits: 0 }).format(Number(n)));
 
-const SEZIONI = [['oggi', 'Oggi'], ['clienti', 'Clienti'], ['chiamate', 'Chiamate'], ['agenda', 'Agenda'], ['calcio', 'Calcio'], ['marga', 'Marga TV'], ['team', 'Team']];
+const SEZIONI = [['oggi', 'Oggi'], ['clienti', 'Clienti'], ['chiamate', 'Chiamate'], ['social', 'Social'], ['agenda', 'Agenda'], ['calcio', 'Calcio'], ['marga', 'Marga TV'], ['team', 'Team']];
 const STATI = [['nuovo', 'Nuovi'], ['contattato', 'Contattati'], ['preventivo_inviato', 'Preventivo'], ['trattativa', 'Trattativa'], ['chiuso_vinto', 'Vinti'], ['chiuso_perso', 'Persi']];
 const NOME_STATO = Object.fromEntries([['nuovo', 'Nuovo'], ['contattato', 'Contattato'], ['preventivo_inviato', 'Preventivo inviato'], ['trattativa', 'In trattativa'], ['chiuso_vinto', 'Vinto'], ['chiuso_perso', 'Perso']]);
 const TIPI_ATT = [['chiamata', 'Chiamata'], ['whatsapp', 'WhatsApp'], ['email', 'Email'], ['preventivo', 'Preventivo'], ['appuntamento', 'Appuntamento'], ['nota', 'Nota']];
-const AGENTI = { segretaria: ['Penelope', 'Segretaria'], postino: ['Ermes', 'Postino'], cacciatore: ['Orione', 'Cacciatore'], mister: ['Chirone', 'Mister'], sponsor: ['Pluto', 'Sponsor Marga TV'], argo: ['ARGO', 'Capo'] };
+const AGENTI = { segretaria: ['Penelope', 'Segretaria'], postino: ['Ermes', 'Postino'], cacciatore: ['Orione', 'Cacciatore'], mister: ['Chirone', 'Mister'], sponsor: ['Pluto', 'Sponsor Marga TV'], social: ['Calliope', 'Social GalvaRent'], argo: ['ARGO', 'Capo'] };
 const SQUADRE = [['pc', 'Primi Calci 2018', /primi calci/i], ['pu', 'Pulcini 2016/17', /pulcini|winter cup/i], ['ch', 'FC Chiasso', /chiasso/i]];
 const STATI_LAVORO = ['da fare', 'fatto', 'pagato'];
 const STATI_SPONSOR = ['da contattare', 'in trattativa', 'chiuso', 'perso'];
@@ -413,17 +423,32 @@ function cartaChiamata(p) {
       <button class="btn verde" data-esito="interessato">Interessato</button>
     </div></article>`;
 }
+const FASI = [['nuova', 'Trovate'], ['pronta', 'Pronte'], ['contattata', 'Contattate'], ['interessata', 'Interessate'], ['preventivo', 'Preventivo'], ['ordine', 'Ordini']];
+const AVANTI = { nuova: ['contattata', 'Contattata'], pronta: ['contattata', 'Contattata'], contattata: ['interessata', 'Interessata'], interessata: ['preventivo', 'Preventivo inviato'], preventivo: ['ordine', 'Ordine firmato'] };
+function numeroWa(t) { let n = String(t || '').replace(/\D/g, ''); if (n.startsWith('00')) n = n.slice(2); if (/^(0|3)\d{7,10}$/.test(n)) n = '39' + n; return n.length >= 10 ? n : ''; }
+function rigaAzienda(a) {
+  const sc = a.scheda || {}, av = AVANTI[a.stato], wa = numeroWa(a.telefono);
+  const sch = (sc.aggancio || sc.script || sc.messaggio) ? `<div class="scheda-az">${sc.aggancio ? `<b>Aggancio</b>${esc(sc.aggancio)}` : ''}${sc.script ? `<b>Cosa dire</b>${esc(sc.script)}` : ''}${sc.messaggio ? `<b>Messaggio</b>${esc(sc.messaggio)}` : ''}</div>` : '';
+  return `<div class="riga"><span class="corpo"><span class="tit">${esc(a.nome)}</span>
+    <div class="sotto">${esc([a.settore, a.comune].filter(Boolean).join(', '))}</div>${a.perche && !sch ? `<div class="sotto">${esc(a.perche)}</div>` : ''}${sch}
+    ${a.note ? `<div class="sotto" style="margin-top:6px">Nota: ${esc(a.note)}</div>` : ''}
+    <div class="azioni" style="margin-top:8px">${a.telefono ? `<a class="btn" href="tel:${esc(a.telefono)}">Chiama</a>` : ''}${wa && sc.messaggio ? `<a class="btn" href="https://wa.me/${wa}?text=${encodeURIComponent(sc.messaggio)}" target="_blank" rel="noopener">WhatsApp</a>` : ''}${a.sito ? `<a class="btn grigio" href="${esc(/^https?:\/\//.test(a.sito) ? a.sito : 'https://' + a.sito)}" target="_blank" rel="noopener">Sito</a>` : ''}
+    ${av ? `<button class="btn verde" data-azienda="${a.id}" data-stato="${av[0]}">${av[1]}</button>` : ''}<button class="btn grigio" data-azienda="${a.id}" data-stato="scartata">Scarta</button><button class="btn grigio" data-nota-az="${a.id}">Nota</button></div></span>
+    <span class="dx">${a.punteggio ? `<span class="stelle">${'★'.repeat(Math.min(3, a.punteggio))}</span>` : ''}<div><span class="tag">${esc((FASI.find(([k]) => k === a.stato) || [, a.stato])[1])}</span></div></span></div>`;
+}
+let faseAz = 'pronte';
 function vChiamate() {
-  const ch = D.chiamate;
-  const az = D.aziende.filter((a) => a.stato === 'nuova');
-  const orione = blocco('Trovate da Orione', elenco(az.map((a) => `<div class="riga"><span class="corpo"><span class="tit">${esc(a.nome)}</span>
-      <div class="sotto">${esc([a.settore, a.comune].filter(Boolean).join(', '))}</div>${a.perche ? `<div class="sotto">${esc(a.perche)}</div>` : ''}
-      <div class="azioni" style="margin-top:8px">${a.telefono ? `<a class="btn" href="tel:${esc(a.telefono)}">${esc(a.telefono)}</a>` : ''}${a.sito ? `<a class="btn grigio" href="${esc(/^https?:\/\//.test(a.sito) ? a.sito : 'https://' + a.sito)}" target="_blank" rel="noopener">Sito</a>` : ''}
-      <button class="btn verde" data-azienda="${a.id}" data-stato="contattata">Contattata</button><button class="btn grigio" data-azienda="${a.id}" data-stato="scartata">Scarta</button></div></span>
-      <span class="dx">${a.punteggio ? `<span class="stelle">${'★'.repeat(Math.min(3, a.punteggio))}</span>` : ''}</span></div>`),
-    'Orione fa il primo giro lunedì alle 7:52: le aziende che trova compaiono qui.'), az.length ? az.length + ' nuove' : '');
-  if (!D.portale.ok || !ch) return notaPortale() + orione;
-  return `
+  const ch = D.chiamate, az = D.aziende || [];
+  const conta = (k) => az.filter((a) => a.stato === k).length;
+  const imbuto = `<div class="imbuto">${FASI.map(([k, n]) => `<div class="numero ${k === 'ordine' && conta(k) ? 'bene' : ''}"><b>${conta(k)}</b><span>${n}</span></div>`).join('')}</div>`;
+  const filtri = [['pronte', 'Da contattare'], ['corso', 'In corso'], ['chiusi', 'Ordini']];
+  const vis = az.filter((a) => faseAz === 'pronte' ? ['nuova', 'pronta'].includes(a.stato) : faseAz === 'corso' ? ['contattata', 'interessata', 'preventivo'].includes(a.stato) : a.stato === 'ordine')
+    .sort((x, y) => (x.stato === 'pronta' ? -1 : 0) - (y.stato === 'pronta' ? -1 : 0) || (y.punteggio || 0) - (x.punteggio || 0));
+  const orione = blocco('Aziende di Orione', `<div class="filtri" style="padding:0 16px">${filtri.map(([k, n]) => `<button aria-pressed="${faseAz === k}" data-fase-az="${k}">${n}</button>`).join('')}</div>` +
+    elenco(vis.slice(0, 30).map(rigaAzienda), faseAz === 'pronte' ? 'Nessuna azienda pronta: Orione prepara le schede dal lunedì al venerdì alle 7:52.' : 'Niente qui per ora.'),
+    'Obiettivo: 5-10 contatti al giorno');
+  if (!D.portale.ok || !ch) return imbuto + notaPortale() + orione;
+  return imbuto + `
   <div class="numeri">
     <div class="numero"><b>${ch.coda.length}</b><span>in coda oggi</span></div>
     <div class="numero ${ch.stat.richiamiScaduti ? 'allarme' : ''}"><b>${ch.stat.richiamiScaduti}</b><span>richiami scaduti</span></div>
@@ -435,6 +460,40 @@ function vChiamate() {
     ${blocco('Richiami in programma', elenco(ch.richiami.map((p) => `<div class="riga"><span class="corpo"><span class="tit">${esc(p.name)}</span><div class="sotto">${esc([p.category, p.zone].filter(Boolean).join(', '))}</div></span><span class="dx"><span class="tag">${fBreve.format(daChiave(p.nextCallDate))}</span><div><a href="tel:${esc(p.phone)}">${esc(p.phone)}</a></div></span></div>`), 'Nessun richiamo fissato.'))}
     ${orione}
   </div>`;
+}
+
+const SOCIAL = 'https://galvarent-social.vercel.app';
+function cartaPost(p) {
+  const n = Array.isArray(p.slides) ? p.slides.length : 0;
+  const imgs = Array.from({ length: n }, (_, i) => `<img loading="lazy" alt="Slide ${i + 1}" src="${SOCIAL}/api/slide?p=${encodeURIComponent(p.id)}&n=${i + 1}&v=${encodeURIComponent(p.aggiornato || '')}">`).join('');
+  const quando = p.quando ? fQuando.format(new Date(p.quando)) : 'data da fissare';
+  const mod = p.stato === 'bozza' || p.stato === 'approvato';
+  return `<div class="post" data-post="${esc(p.id)}"><div class="sotto" style="color:var(--dim)">${esc(quando)} · ${esc(p.tipo || 'carosello')}${p.tema ? ' · ' + esc(p.tema) : ''}</div>
+    ${n ? `<div class="strip">${imgs}</div>` : ''}
+    ${mod ? `<textarea name="didascalia" aria-label="Didascalia">${esc(p.didascalia || '')}</textarea>` : `<div style="white-space:pre-wrap;margin-top:6px">${esc(p.didascalia || '')}</div>`}
+    ${p.errore ? `<div class="sotto" style="color:var(--rosso,#E83F31)">Errore: ${esc(p.errore)}</div>` : ''}
+    ${p.nota ? `<div class="sotto">Nota per Calliope: ${esc(p.nota)}</div>` : ''}
+    <div class="azioni" style="margin-top:10px">${p.stato === 'bozza' ? `<button class="btn verde" data-post-stato="approvato">Approva</button><button class="btn" data-post-nota="1">Chiedi modifiche</button><button class="btn grigio" data-post-stato="scartato">Scarta</button>`
+      : p.stato === 'approvato' ? `<button class="btn" data-post-salva="1">Salva didascalia</button><button class="btn grigio" data-post-stato="bozza">Rimetti in bozza</button>`
+      : p.stato === 'errore' ? `<button class="btn" data-post-stato="approvato">Riprova</button><button class="btn grigio" data-post-stato="scartato">Scarta</button>`
+      : p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Apri su Instagram</a>` : ''}</div></div>`;
+}
+function vSocial() {
+  const P = D.post || [];
+  const di = (st) => P.filter((p) => p.stato === st);
+  const cal = (D.hq && D.hq.agenti && D.hq.agenti.social) || {};
+  return `<div class="numeri">
+    <div class="numero ${di('bozza').length ? 'allarme' : ''}"><b>${di('bozza').length}</b><span>da approvare</span></div>
+    <div class="numero"><b>${di('approvato').length}</b><span>in programma</span></div>
+    <div class="numero bene"><b>${di('pubblicato').length}</b><span>pubblicati in 3 settimane</span></div>
+  </div>
+  ${blocco('Da approvare', di('bozza').length ? di('bozza').map(cartaPost).join('') : '<div class="vuoto">Nessuna bozza. Calliope prepara i post il lunedì e il giovedì.</div>', 'Niente esce senza il tuo ok')}
+  <div style="height:16px"></div>
+  ${di('errore').length ? blocco('Non pubblicati', di('errore').map(cartaPost).join('')) + '<div style="height:16px"></div>' : ''}
+  ${blocco('In programma', elenco(di('approvato').map(cartaPost), 'Niente in programma.'))}
+  <div style="height:16px"></div>
+  ${blocco('Pubblicati', elenco(di('pubblicato').map(cartaPost), 'Ancora nessun post pubblicato.'))}
+  ${cal.rapporto ? `<div class="vuoto">Calliope: ${esc(cal.rapporto)}</div>` : ''}`;
 }
 
 function vAgenda() {
@@ -513,7 +572,7 @@ function sponsorTrovati() {
 
 function vTeam() {
   const ag = (D.hq && D.hq.agenti) || {};
-  const carte = ['segretaria', 'postino', 'cacciatore', 'mister', 'sponsor'].map((k) => {
+  const carte = ['segretaria', 'postino', 'cacciatore', 'mister', 'sponsor', 'social'].map((k) => {
     const a = ag[k] || {}; const [nome, ruolo] = AGENTI[k];
     return blocco(`${nome}`, `<div class="dentro"><div class="msg" style="font-size:16px">${esc(a.rapporto || 'Nessun rapporto ancora.')}</div>
       <div class="sotto" style="color:var(--dim);margin-top:8px">Prossimo turno: ${esc(a.prossimo || 'non fissato')}</div></div>`,
@@ -528,7 +587,7 @@ const notaPortale = () => `<div class="nota-portale">Il portale clienti di galva
 function disegna() {
   const sc = followScaduti().length;
   $('schede').innerHTML = SEZIONI.map(([k, n]) => `<button data-sez="${k}" ${k === sez ? 'aria-current="page"' : ''}>${n}${k === 'clienti' && sc ? `<span class="conta">${sc}</span>` : ''}</button>`).join('');
-  const viste = { oggi: vOggi, clienti: vClienti, chiamate: vChiamate, agenda: vAgenda, calcio: vCalcio, marga: vMarga, team: vTeam };
+  const viste = { oggi: vOggi, clienti: vClienti, chiamate: vChiamate, social: vSocial, agenda: vAgenda, calcio: vCalcio, marga: vMarga, team: vTeam };
   const attivo = document.activeElement && document.activeElement.id === 'cerca';
   $('vista').innerHTML = viste[sez]();
   if (attivo && $('cerca')) { const c = $('cerca'); c.focus(); c.setSelectionRange(c.value.length, c.value.length); }
@@ -647,9 +706,27 @@ document.addEventListener('click', async (ev) => {
     try { await invia('sponsor_stato', { id: d.sponsor, stato: d.stato }, 'Aggiornato'); const x = (D.sponsor || []).find((y) => String(y.id) === d.sponsor); if (x) x.stato = d.stato; disegna(); } catch { t.disabled = false; }
     return;
   }
+  if (d.faseAz) { faseAz = d.faseAz; return disegna(); }
+  if (d.notaAz) {
+    const a = D.aziende.find((x) => String(x.id) === d.notaAz); if (!a) return;
+    const n = prompt('Nota su ' + a.nome, a.note || ''); if (n === null) return;
+    try { await invia('azienda_stato', { id: d.notaAz, stato: a.stato, note: n }, 'Nota salvata'); a.note = n; disegna(); } catch { /* avviso mostrato */ }
+    return;
+  }
+  const cp = t.closest('[data-post]');
+  if (cp && (d.postStato || d.postSalva || d.postNota)) {
+    const p = (D.post || []).find((x) => x.id === cp.dataset.post); if (!p) return;
+    const ta = cp.querySelector('textarea'); const dati = { id: p.id, stato: d.postStato || p.stato };
+    if (ta) dati.didascalia = ta.value;
+    if (d.postNota) { const n = prompt('Cosa deve cambiare Calliope?', p.nota || ''); if (n === null) return; dati.nota = n; dati.stato = 'bozza'; }
+    t.disabled = true;
+    const msg = { approvato: 'Approvato: Calliope lo pubblica alla data prevista', scartato: 'Scartato', bozza: d.postNota ? 'Nota inviata a Calliope' : 'Rimesso in bozza' }[dati.stato] || 'Salvato';
+    try { await invia('post_stato', dati, d.postSalva ? 'Didascalia salvata' : msg); Object.assign(p, dati); if (d.postNota) p.stato = 'bozza'; disegna(); } catch { t.disabled = false; }
+    return;
+  }
   if (d.azienda) {
     t.disabled = true;
-    try { await invia('azienda_stato', { id: d.azienda, stato: d.stato }, d.stato === 'contattata' ? 'Segnata come contattata' : 'Scartata'); const a = D.aziende.find((x) => String(x.id) === d.azienda); if (a) a.stato = d.stato; disegna(); } catch { t.disabled = false; }
+    try { await invia('azienda_stato', { id: d.azienda, stato: d.stato }, d.stato === 'scartata' ? 'Scartata' : 'Aggiornata'); const a = D.aziende.find((x) => String(x.id) === d.azienda); if (a) a.stato = d.stato; disegna(); } catch { t.disabled = false; }
     return;
   }
   const f = t.closest('form[data-form="voce"]');
