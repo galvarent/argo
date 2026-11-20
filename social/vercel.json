@@ -1,5 +1,14 @@
 {
   "regions": ["fra1"],
-  "functions": { "api/slide.js": { "memory": 1024, "maxDuration": 20, "includeFiles": "assets/**" } },
+  "cleanUrls": true,
+  "functions": {
+    "api/slide.js": { "memory": 1024, "maxDuration": 20, "includeFiles": "assets/**" },
+    "api/richiesta.js": { "maxDuration": 15 },
+    "api/promemoria.js": { "maxDuration": 60 }
+  },
+  "crons": [{ "path": "/api/promemoria", "schedule": "13 8 * * *" }],
+  "headers": [
+    { "source": "/(canone|privacy)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }
+  ],
   "rewrites": [{ "source": "/", "destination": "/api/slide?p=demo&n=1" }]
 }

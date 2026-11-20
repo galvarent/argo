@@ -278,6 +278,13 @@ async function scrivi(b) {
       if (typeof b.note === 'string') d.note = b.note.slice(0, 1000);
       return rpc('argo_crm_scrivi', { p_op: 'azienda_stato', p_dati: d });
     }
+    case 'richiesta_stato': {
+      if (!idOk(b.id)) throw new Error('Richiesta non valida');
+      if (!['nuova', 'contattata', 'interessata', 'preventivo', 'ordine', 'scartata'].includes(b.stato)) throw new Error('Stato non valido');
+      const d = { id: b.id, stato: b.stato };
+      if (typeof b.note === 'string') d.note = b.note.slice(0, 1000);
+      return rpc('argo_richieste_crm', { p_op: 'stato', p_dati: d });
+    }
     case 'post_stato': {
       if (!idOk(b.id)) throw new Error('Post non valido');
       if (!['bozza', 'approvato', 'scartato'].includes(b.stato)) throw new Error('Stato non valido');
@@ -332,8 +339,9 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === 'GET') {
-      const [base, gr, gc] = await Promise.allSettled([
+      const [base, gr, gc, rq] = await Promise.allSettled([
         rpc('argo_crm_leggi', {}), leggiPortale(), googleAttivo() ? agendaGoogle() : Promise.reject(new Error('non collegato')),
+        rpc('argo_richieste_crm', { p_op: 'leggi', p_dati: {} }),
       ]);
       if (base.status !== 'fulfilled') throw base.reason;
       const gOk = gc.status === 'fulfilled';
@@ -347,6 +355,7 @@ module.exports = async (req, res) => {
         leads: gr.status === 'fulfilled' ? gr.value.leads : [],
         chiamate: gr.status === 'fulfilled' ? gr.value.chiamate : null,
         portale: gr.status === 'fulfilled' ? { ok: true } : { ok: false, errore: String((gr.reason && gr.reason.message) || 'non raggiungibile') },
+        richieste: rq.status === 'fulfilled' && Array.isArray(rq.value) ? rq.value : [],
         oggi: oggiRoma(),
       });
     }

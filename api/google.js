@@ -5,7 +5,7 @@
 
 const crypto = require('crypto');
 
-const SCOPE = 'https://www.googleapis.com/auth/calendar';
+const SCOPE = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.send';
 
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -78,9 +78,10 @@ module.exports = async (req, res) => {
   return invia(res, 200, pagina('Quasi fatto', `<h1>Quasi fatto, Andrea</h1>
     <ol>
       <li>Copia questo valore:<br><textarea readonly onclick="this.select()">${esc(j.refresh_token)}</textarea></li>
-      <li>Su Vercel, progetto <b>argo</b> → Settings → Environment Variables, crea <code>GOOGLE_REFRESH_TOKEN</code> con questo valore (ambiente Production).</li>
-      <li>Rifai il deploy (Deployments → ultimo → Redeploy).</li>
+      <li>Su Vercel, progetto <b>argo</b> → Settings → Environment Variables: modifica <code>GOOGLE_REFRESH_TOKEN</code> e incolla questo valore (Production).</li>
+      <li>Nel progetto <b>galvarent-social</b>, stessa sezione, crea tre variabili (Production): <code>GOOGLE_REFRESH_TOKEN</code> con questo valore, e <code>GOOGLE_CLIENT_ID</code> e <code>GOOGLE_CLIENT_SECRET</code> uguali a quelle del progetto argo. Servono per mandare le mail del sito.</li>
+      <li>Dillo ad ARGO: rifà lui la pubblicazione dei due progetti.</li>
     </ol>
-    <p class="nota">Non condividere questo valore: dà accesso al tuo calendario. Puoi revocarlo quando vuoi da myaccount.google.com → Sicurezza → App di terze parti.</p>
+    <p class="nota">Non condividere questo valore: dà accesso al tuo calendario e all'invio di mail dalla tua casella. Puoi revocarlo quando vuoi da myaccount.google.com → Sicurezza → App di terze parti.</p>
     <a class="btn" href="/">Torna ad ARGO</a>`, { 'Set-Cookie': 'argo_g=; Path=/api/google; Max-Age=0' }));
 };

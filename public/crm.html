@@ -436,6 +436,18 @@ function rigaAzienda(a) {
     ${av ? `<button class="btn verde" data-azienda="${a.id}" data-stato="${av[0]}">${av[1]}</button>` : ''}<button class="btn grigio" data-azienda="${a.id}" data-stato="scartata">Scarta</button><button class="btn grigio" data-nota-az="${a.id}">Nota</button></div></span>
     <span class="dx">${a.punteggio ? `<span class="stelle">${'★'.repeat(Math.min(3, a.punteggio))}</span>` : ''}<div><span class="tag">${esc((FASI.find(([k]) => k === a.stato) || [, a.stato])[1])}</span></div></span></div>`;
 }
+const AVANTI_RQ = { nuova: ['contattata', 'Contattato'], contattata: ['interessata', 'Interessato'], interessata: ['preventivo', 'Preventivo inviato'], preventivo: ['ordine', 'Ordine firmato'] };
+function rigaRichiesta(r) {
+  const av = AVANTI_RQ[r.stato], wa = numeroWa(r.telefono);
+  const det = [r.cliente, r.veicolo, r.km && r.km + ' km', r.durata, r.anticipo].filter(Boolean).join(' · ');
+  return `<div class="riga"><span class="corpo"><span class="tit">${esc(r.nome)}${r.comune ? ` <span class="sotto">· ${esc(r.comune)}</span>` : ''}</span>
+    <div class="sotto">${esc(det)}</div>${r.auto ? `<div class="sotto">Auto: ${esc(r.auto)}</div>` : ''}
+    <div class="sotto" style="color:var(--dim)">Arrivata ${fQuando.format(new Date(r.creata))}${r.mail1 ? ' · mail di conferma inviata' : ''}${r.mail2 ? ' · promemoria inviato' : ''}${r.consenso_marketing ? ' · ok offerte' : ''}</div>
+    ${r.note ? `<div class="sotto" style="margin-top:6px">Nota: ${esc(r.note)}</div>` : ''}
+    <div class="azioni" style="margin-top:8px">${r.telefono ? `<a class="btn" href="tel:${esc(r.telefono)}">Chiama</a>` : ''}${wa ? `<a class="btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ''}${r.email ? `<a class="btn grigio" href="mailto:${esc(r.email)}">Mail</a>` : ''}
+    ${av ? `<button class="btn verde" data-richiesta="${esc(r.id)}" data-stato="${av[0]}">${av[1]}</button>` : ''}${r.stato !== 'scartata' && r.stato !== 'ordine' ? `<button class="btn grigio" data-richiesta="${esc(r.id)}" data-stato="scartata">Scarta</button>` : ''}</div></span>
+    <span class="dx"><span class="tag ${r.stato === 'nuova' ? 'oggi' : ''}">${esc((FASI.find(([k]) => k === r.stato) || [, r.stato === 'nuova' ? 'Nuova' : r.stato])[1])}</span></span></div>`;
+}
 let faseAz = 'pronte';
 function vChiamate() {
   const ch = D.chiamate, az = D.aziende || [];
@@ -447,8 +459,10 @@ function vChiamate() {
   const orione = blocco('Aziende di Orione', `<div class="filtri" style="padding:0 16px">${filtri.map(([k, n]) => `<button aria-pressed="${faseAz === k}" data-fase-az="${k}">${n}</button>`).join('')}</div>` +
     elenco(vis.slice(0, 30).map(rigaAzienda), faseAz === 'pronte' ? 'Nessuna azienda pronta: Orione prepara le schede dal lunedì al venerdì alle 7:52.' : 'Niente qui per ora.'),
     'Obiettivo: 5-10 contatti al giorno');
-  if (!D.portale.ok || !ch) return imbuto + notaPortale() + orione;
-  return imbuto + `
+  const rq = (D.richieste || []).filter((r) => r.stato !== 'scartata');
+  const richieste = rq.length ? blocco('Richieste dal sito', elenco(rq.slice(0, 30).map(rigaRichiesta), ''), `${rq.filter((r) => r.stato === 'nuova').length} da richiamare`) + '<div style="height:16px"></div>' : '';
+  if (!D.portale.ok || !ch) return imbuto + richieste + notaPortale() + orione;
+  return imbuto + richieste + `
   <div class="numeri">
     <div class="numero"><b>${ch.coda.length}</b><span>in coda oggi</span></div>
     <div class="numero ${ch.stat.richiamiScaduti ? 'allarme' : ''}"><b>${ch.stat.richiamiScaduti}</b><span>richiami scaduti</span></div>
@@ -707,6 +721,11 @@ document.addEventListener('click', async (ev) => {
     return;
   }
   if (d.faseAz) { faseAz = d.faseAz; return disegna(); }
+  if (d.richiesta) {
+    t.disabled = true;
+    try { await invia('richiesta_stato', { id: d.richiesta, stato: d.stato }, d.stato === 'scartata' ? 'Scartata' : 'Aggiornata'); const r = (D.richieste || []).find((x) => x.id === d.richiesta); if (r) r.stato = d.stato; disegna(); } catch { t.disabled = false; }
+    return;
+  }
   if (d.notaAz) {
     const a = D.aziende.find((x) => String(x.id) === d.notaAz); if (!a) return;
     const n = prompt('Nota su ' + a.nome, a.note || ''); if (n === null) return;

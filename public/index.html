@@ -374,6 +374,8 @@ function disegnaFollow() {
   const bozze = (D.post || []).filter((p) => p.stato === 'bozza').length;
   const pronte = (D.aziende || []).filter((a) => a.stato === 'pronta').length;
   const extra = [];
+  const nuoveRq = (D.richieste || []).filter((r) => r.stato === 'nuova').length;
+  if (nuoveRq) extra.push(`<div class="riga"><span class="corpo"><span class="tit">${nuoveRq === 1 ? '1 richiesta' : nuoveRq + ' richieste'} dal sito</span><span class="sotto" style="color:var(--ambra)">Da richiamare entro 24 ore</span></span><a class="btn morbido" href="/crm#chiamate">Apri</a></div>`);
   if (bozze) extra.push(`<div class="riga"><span class="corpo"><span class="tit">${bozze === 1 ? '1 post' : bozze + ' post'} da approvare</span><span class="sotto">Calliope · Instagram GalvaRent</span></span><a class="btn morbido" href="/crm#social">Guarda</a></div>`);
   if (pronte) extra.push(`<div class="riga"><span class="corpo"><span class="tit">${pronte === 1 ? '1 azienda pronta' : pronte + ' aziende pronte'} da contattare</span><span class="sotto">Schede di Orione con cosa dire</span></span><a class="btn morbido" href="/crm#chiamate">Apri</a></div>`);
   const righe = [

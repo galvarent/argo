@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Calcola il tuo canone – GalvaRent</title>
+<meta name="description" content="Noleggio a lungo termine a Como, Varese e Monza Brianza: rispondi a 5 domande e ricevi in 24 ore un preventivo su misura.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0A0A0A;color:#F5F5F5;font-family:Inter,system-ui,sans-serif}
+a{color:#F5F5F5}a:hover{color:#E83F31}
+.box{max-width:1200px;margin:0 auto;padding:0 24px}
+header .box{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:20px;padding-bottom:20px}
+nav{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:15px}
+nav a{text-decoration:none;color:#B4BAC2}
+.pill{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #3A3A3A;color:#F5F5F5!important;font-weight:600}
+.hero{display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;padding-top:40px;padding-bottom:72px}
+.col{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:22px;padding-top:24px}
+.kicker{display:flex;align-items:center;gap:12px}.kicker i{width:40px;height:6px;border-radius:3px;background:#E83F31;flex:none}
+.kicker span{font-size:13px;font-weight:700;letter-spacing:2px;color:#9AA1A9}
+h1{margin:0;font-size:clamp(36px,5vw,56px);line-height:1.05;font-weight:800;letter-spacing:-1.5px}h1 em{font-style:normal;color:#E83F31}
+.lead{margin:0;font-size:20px;line-height:1.5;color:#B4BAC2}
+.punti{display:flex;flex-direction:column;gap:14px;margin:6px 0 0;padding:0;list-style:none}
+.punti li{display:flex;gap:14px;font-size:18px;line-height:1.45}.punti svg{flex:none;margin-top:2px}
+.piccolo{margin:0;font-size:14px;color:#8A9099}
+.card{flex:1 1 440px;min-width:0;background:#151515;border:1px solid #262626;border-radius:24px;padding:28px}
+.card h2{margin:0;font-size:24px;font-weight:800}
+.testa{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.testa span{font-size:14px;color:#8A9099}
+fieldset{border:0;margin:0 0 20px;padding:0}legend{font-size:15px;font-weight:600;color:#D6DAE0;margin-bottom:10px;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{min-height:46px;padding:0 16px;border-radius:999px;font:600 15px Inter,sans-serif;cursor:pointer;border:1px solid #3A3A3A;background:#0F0F0F;color:#E6E8EB}
+.chips button[aria-pressed=true]{border:2px solid #E83F31;background:#E83F31;color:#fff}
+.cta{width:100%;min-height:56px;border:0;border-radius:14px;background:#E83F31;color:#fff;font:700 18px Inter,sans-serif;cursor:pointer}
+.cta:disabled{opacity:.6;cursor:wait}
+.sec{min-height:56px;padding:0 22px;border:1px solid #3A3A3A;border-radius:14px;background:transparent;color:#F5F5F5;font:600 16px Inter,sans-serif;cursor:pointer}
+label.campo{display:flex;flex-direction:column;gap:6px;font-size:15px;font-weight:600;color:#D6DAE0;margin-bottom:16px;flex:1 1 200px}
+label.campo input{min-height:52px;border-radius:12px;border:1px solid #333;background:#0F0F0F;color:#F5F5F5;padding:0 14px;font:16px Inter,sans-serif}
+label.campo input:focus,.chips button:focus-visible,.cta:focus-visible{outline:2px solid #E83F31;outline-offset:2px}
+.riga2{display:flex;flex-wrap:wrap;gap:14px}
+label.spunta{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.45;color:#C8CDD3;cursor:pointer;margin-bottom:14px}
+label.spunta input{width:22px;height:22px;margin:0;flex:none;accent-color:#E83F31}label.spunta b{color:#F5F5F5}
+.errore{margin:8px 0 0;font-size:14px;color:#FF8A7F;min-height:1em}
+.bottoni{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}.bottoni .cta{flex:1 1 220px;width:auto}
+.trappola{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.fatto{display:flex;flex-direction:column;gap:16px;padding:12px 0}.fatto h2{font-size:28px}.fatto p{margin:0;font-size:18px;line-height:1.5;color:#B4BAC2}
+.bianco{align-self:flex-start;display:inline-flex;align-items:center;min-height:52px;padding:0 22px;border-radius:14px;background:#F5F5F5;color:#0A0A0A!important;font-weight:700;text-decoration:none}
+.fascia{background:#111;border-top:1px solid #1F1F1F;border-bottom:1px solid #1F1F1F}
+.fascia .box,.sezione{padding-top:72px;padding-bottom:72px}
+h2.big{margin:0 0 36px;font-size:40px;font-weight:800;letter-spacing:-1px}
+.griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.passo{background:#151515;border:1px solid #262626;border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:12px}
+.passo b{font-size:44px;font-weight:800;color:#E83F31;line-height:1}.passo h3{margin:0;font-size:22px}.passo p{margin:0;font-size:17px;line-height:1.5;color:#B4BAC2}
+.incl{display:flex;flex-wrap:wrap;gap:48px}.incl>div{flex:1 1 360px;min-width:0}
+.incl ul{flex:1 1 480px;min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.incl li{display:flex;align-items:center;gap:12px;min-height:60px;padding:0 18px;border:1px solid #262626;border-radius:14px;background:#151515;font-size:17px;font-weight:600}
+.incl li::before{content:"";width:10px;height:10px;border-radius:5px;background:#E83F31;flex:none}
+.faq{max-width:900px}details{background:#151515;border:1px solid #262626;border-radius:16px;padding:18px 22px;margin-bottom:14px}
+summary{cursor:pointer;font-size:18px;font-weight:700}details p{margin:12px 0 0;font-size:17px;line-height:1.55;color:#B4BAC2}
+footer .box{padding-top:32px;padding-bottom:32px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;font-size:14px;color:#8A9099}
+footer{border-top:1px solid #1F1F1F}footer a{color:#8A9099}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="box">
+  <img src="/galvarent.svg" alt="GalvaRent" style="height:44px;width:auto">
+  <nav><a href="#come-funziona">Come funziona</a><a href="#domande">Domande</a>
+  <a class="pill" href="https://wa.me/393421682857?text=Ciao%20Andrea%2C%20vorrei%20un%20preventivo%20di%20noleggio%20a%20lungo%20termine" target="_blank" rel="noopener">Scrivimi su WhatsApp</a></nav>
+</div></header>
+
+<main>
+<section id="calcola" class="box hero">
+  <div class="col">
+    <div class="kicker"><i></i><span>NOLEGGIO A LUNGO TERMINE · COMO · VARESE · MONZA BRIANZA</span></div>
+    <h1>Quanto pagheresti la tua prossima auto <em>tutto incluso?</em></h1>
+    <p class="lead">Rispondi a 5 domande: in 24 ore ti mando un preventivo su misura, confrontato tra più società di noleggio. Se vuoi, vengo io da te, a casa o in sede.</p>
+    <ul class="punti">
+      <li><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E83F31" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Un canone fisso al mese, con le coperture scritte nero su bianco</li>
+      <li><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E83F31" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Confronto tra più società di noleggio, non un solo listino</li>
+      <li><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E83F31" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Un consulente della zona che viene da te, a casa o in sede</li>
+    </ul>
+    <p class="piccolo">Nessun impegno. Il preventivo è gratuito e non ti iscrive a nessuna newsletter se non lo chiedi tu.</p>
+  </div>
+
+  <div class="card">
+    <form id="modulo" novalidate>
+      <div id="p1">
+        <div class="testa"><h2>Il tuo noleggio</h2><span>1 di 2</span></div>
+        <div id="domande"></div>
+        <button type="button" class="cta" id="avanti">Continua</button>
+        <p class="errore" id="err1" role="alert"></p>
+      </div>
+      <div id="p2" hidden>
+        <div class="testa"><h2>Dove ti mando il preventivo</h2><span>2 di 2</span></div>
+        <label class="campo">Nome e cognome<input name="nome" autocomplete="name" placeholder="Mario Rossi" required></label>
+        <div class="riga2">
+          <label class="campo">Telefono<input name="telefono" type="tel" autocomplete="tel" placeholder="333 1234567"></label>
+          <label class="campo">Email<input name="email" type="email" autocomplete="email" placeholder="nome@esempio.it"></label>
+        </div>
+        <label class="campo">Comune<input name="comune" autocomplete="address-level2" placeholder="Es. Cantù"></label>
+        <label class="campo">Auto che hai in mente (facoltativo)<input name="auto" placeholder="Es. Peugeot 2008 ibrida, oppure un furgone da 3 posti"></label>
+        <label class="trappola" aria-hidden="true">Sito web<input name="sito_web" tabindex="-1" autocomplete="off"></label>
+        <label class="spunta"><input type="checkbox" name="consenso_privacy"><span>Ho letto l'<a href="/privacy" target="_blank">informativa privacy</a> e acconsento a essere ricontattato da GalvaRent per ricevere il preventivo richiesto. <b>Obbligatorio</b></span></label>
+        <label class="spunta"><input type="checkbox" name="consenso_marketing"><span>Voglio ricevere via email le nuove offerte di noleggio, al massimo 2 al mese. Posso disiscrivermi quando voglio. <b>Facoltativo</b></span></label>
+        <div class="bottoni"><button type="button" class="sec" id="indietro">Indietro</button><button type="submit" class="cta" id="invia">Ricevi il preventivo</button></div>
+        <p class="errore" id="err2" role="alert"></p>
+      </div>
+      <div id="p3" class="fatto" hidden>
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#E83F31" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M16 9l-5.5 6L8 12.5"/></svg>
+        <h2>Ricevuto, grazie.</h2>
+        <p>Ti scrivo entro 24 ore con le prime proposte. Se hai lasciato l'email, trovi già il riepilogo di quello che mi hai chiesto.</p>
+        <p>Hai fretta? Scrivimi su WhatsApp e ti rispondo prima.</p>
+        <a class="bianco" href="https://wa.me/393421682857?text=Ciao%20Andrea%2C%20ho%20appena%20chiesto%20un%20preventivo%20dal%20sito" target="_blank" rel="noopener">Scrivimi su WhatsApp</a>
+        <p style="font-size:14px;color:#8A9099">Andrea – GalvaRent</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section id="come-funziona" class="fascia"><div class="box">
+  <h2 class="big">Come funziona</h2>
+  <div class="griglia">
+    <div class="passo"><b>1</b><h3>Mi dici cosa ti serve</h3><p>5 domande e i tuoi contatti: due minuti dal telefono.</p></div>
+    <div class="passo"><b>2</b><h3>Ti preparo le proposte</h3><p>Entro 24 ore ricevi le offerte più adatte, con canone e coperture a confronto.</p></div>
+    <div class="passo"><b>3</b><h3>Decidi con calma</h3><p>Se ti interessa ci vediamo a casa o in sede, oppure facciamo tutto a distanza.</p></div>
+  </div>
+</div></section>
+
+<section class="box sezione incl">
+  <div><h2 class="big" style="margin-bottom:14px">Cosa c'è di solito nel canone</h2>
+  <p class="lead" style="font-size:18px">Le coperture esatte cambiano da offerta a offerta: nel preventivo te le scrivo voce per voce, così confronti con quello che spendi oggi.</p></div>
+  <ul><li>RCA</li><li>Furto e incendio</li><li>Kasko o danni</li><li>Manutenzione</li><li>Soccorso stradale</li><li>Pneumatici</li></ul>
+</section>
+
+<section id="domande" class="fascia" style="border-bottom:0"><div class="box faq">
+  <h2 class="big">Domande frequenti</h2>
+  <details><summary>Quanto costa il tuo servizio?</summary><p>Il preventivo e la consulenza sono gratuiti per te.</p></details>
+  <details><summary>Serve l'anticipo?</summary><p>No, esistono offerte senza anticipo. Con un anticipo il canone scende: nel preventivo ti mostro entrambe le strade.</p></details>
+  <details><summary>Va bene anche se sono un privato?</summary><p>Sì. Il noleggio a lungo termine è per privati, partite IVA e aziende.</p></details>
+  <details><summary>In quali zone lavori?</summary><p>Province di Como, Varese e Monza Brianza per gli incontri di persona; a distanza ovunque.</p></details>
+  <a href="#calcola" class="cta" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 26px;margin-top:20px;text-decoration:none;color:#fff">Calcola il tuo canone</a>
+</div></section>
+</main>
+
+<footer><div class="box">
+  <span>GalvaRent di Andrea Galvano · Consulenza noleggio a lungo termine · P.IVA [P.IVA]</span>
+  <span><a href="/privacy">Informativa privacy</a></span>
+</div></footer>
+
+<script>
+(function () {
+  var Q = [
+    ['cliente', 'Sei un privato o hai la partita IVA?', ['Privato', 'Partita IVA / ditta', 'Società']],
+    ['veicolo', 'Che mezzo ti serve?', ['Utilitaria', 'SUV', 'Station wagon', 'Furgone', 'Elettrica o ibrida']],
+    ['km', 'Quanti km fai all’anno, più o meno?', ['Fino a 10.000', '15.000', '20.000', '30.000 o più']],
+    ['durata', 'Per quanto tempo?', ['24 mesi', '36 mesi', '48 mesi', '60 mesi']],
+    ['anticipo', 'Anticipo', ['Zero anticipo', 'Anticipo basso', 'Valuto io in base al canone']]
+  ];
+  var scelte = {}, $ = function (id) { return document.getElementById(id); };
+  var box = $('domande');
+  Q.forEach(function (q) {
+    var fs = document.createElement('fieldset'), lg = document.createElement('legend'), ch = document.createElement('div');
+    lg.textContent = q[1]; ch.className = 'chips';
+    q[2].forEach(function (nome) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = nome; b.setAttribute('aria-pressed', 'false');
+      b.onclick = function () {
+        scelte[q[0]] = nome;
+        ch.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        $('err1').textContent = '';
+      };
+      ch.appendChild(b);
+    });
+    fs.appendChild(lg); fs.appendChild(ch); box.appendChild(fs);
+  });
+  function passo(n) { ['p1', 'p2', 'p3'].forEach(function (p, i) { $(p).hidden = i !== n - 1; }); $('calcola').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  $('avanti').onclick = function () {
+    if (!scelte.cliente || !scelte.veicolo) { $('err1').textContent = 'Scegli almeno il tipo di cliente e di veicolo.'; return; }
+    passo(2);
+  };
+  $('indietro').onclick = function () { passo(1); };
+  $('modulo').onsubmit = function (e) {
+    e.preventDefault();
+    var f = e.target, err = $('err2');
+    var d = { nome: f.nome.value, telefono: f.telefono.value, email: f.email.value, comune: f.comune.value, auto: f.auto.value, sito_web: f.sito_web.value,
+      consenso_privacy: f.consenso_privacy.checked, consenso_marketing: f.consenso_marketing.checked };
+    for (var k in scelte) d[k] = scelte[k];
+    if (d.nome.trim().length < 2) { err.textContent = 'Scrivi il tuo nome.'; return; }
+    if (!d.telefono.trim() && !d.email.trim()) { err.textContent = 'Lascia almeno un telefono o un’email.'; return; }
+    if (!d.consenso_privacy) { err.textContent = 'Per mandarti il preventivo mi serve il consenso obbligatorio.'; return; }
+    err.textContent = ''; $('invia').disabled = true; $('invia').textContent = 'Invio…';
+    fetch('/api/richiesta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) { if (x.ok) passo(3); else throw new Error(x.j && x.j.error); })
+      .catch(function (e2) { err.textContent = (e2 && e2.message) || 'Qualcosa non ha funzionato: scrivimi su WhatsApp.'; })
+      .then(function () { $('invia').disabled = false; $('invia').textContent = 'Ricevi il preventivo'; });
+  };
+})();
+</script>
+</body>
+</html>
