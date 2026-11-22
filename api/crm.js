@@ -287,10 +287,10 @@ async function scrivi(b) {
     }
     case 'post_stato': {
       if (!idOk(b.id)) throw new Error('Post non valido');
-      if (!['bozza', 'approvato', 'scartato'].includes(b.stato)) throw new Error('Stato non valido');
+      if (!['bozza', 'approvato', 'scartato', 'pubblicato'].includes(b.stato)) throw new Error('Stato non valido');
       const d = { id: b.id, stato: b.stato };
       if (typeof b.nota === 'string') d.nota = b.nota.slice(0, 1000);
-      if (typeof b.didascalia === 'string') d.didascalia = b.didascalia.slice(0, 2200);
+      if (typeof b.didascalia === 'string') d.didascalia = b.didascalia.slice(0, 2900);
       return rpc('argo_crm_scrivi', { p_op: 'post_stato', p_dati: d });
     }
     case 'sponsor_stato':

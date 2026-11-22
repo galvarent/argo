@@ -1,14 +1,47 @@
 {
-  "regions": ["fra1"],
+  "regions": [
+    "fra1"
+  ],
   "cleanUrls": true,
   "functions": {
-    "api/slide.js": { "memory": 1024, "maxDuration": 20, "includeFiles": "assets/**" },
-    "api/richiesta.js": { "maxDuration": 15 },
-    "api/promemoria.js": { "maxDuration": 60 }
+    "api/slide.js": {
+      "memory": 1024,
+      "maxDuration": 20,
+      "includeFiles": "assets/**"
+    },
+    "api/richiesta.js": {
+      "maxDuration": 15
+    },
+    "api/promemoria.js": {
+      "maxDuration": 60
+    },
+    "api/reel.js": {
+      "memory": 2048,
+      "maxDuration": 60,
+      "includeFiles": "{assets/**,node_modules/ffmpeg-static/ffmpeg}"
+    }
   },
-  "crons": [{ "path": "/api/promemoria", "schedule": "13 8 * * *" }],
-  "headers": [
-    { "source": "/(canone|privacy)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }
+  "crons": [
+    {
+      "path": "/api/promemoria",
+      "schedule": "13 8 * * *"
+    }
   ],
-  "rewrites": [{ "source": "/", "destination": "/api/slide?p=demo&n=1" }]
+  "headers": [
+    {
+      "source": "/(canone|privacy)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/api/slide?p=demo&n=1"
+    }
+  ]
 }

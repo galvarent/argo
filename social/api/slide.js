@@ -10,6 +10,9 @@ const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || '';
 
 const W = 1080, H = 1350;
+// Il reel si disegna su una tela logica più stretta (880x1564, 9:16) e poi si ingrandisce a 1080x1920:
+// così testi e titoli risultano più grandi, come serve su uno schermo verticale.
+const W_REEL = 880, H_REEL = 1564;
 const NERO = '#0A0A0A', CARD = '#151515', LINEA = '#262626', ROSSO = '#E83F31', BIANCO = '#F5F5F5', GRIGIO = '#B4BAC2', TENUE = '#8A9099';
 
 let risorse = null;
@@ -89,6 +92,28 @@ function corpo(s) {
       s.note ? testo(s.note, { fontSize: 22, color: TENUE, lineHeight: 1.35 }) : null,
     ].filter(Boolean));
   }
+  if (tipo === 'dato') {
+    // Post singolo "Il dato": un numero enorme che ferma lo scroll.
+    return h('div', { display: 'flex', flexDirection: 'column', gap: 30, flexGrow: 1, justifyContent: 'center' }, [
+      s.etichetta ? testo(s.etichetta.toUpperCase(), { fontSize: 30, fontWeight: 800, color: ROSSO, letterSpacing: 2 }) : null,
+      testo(s.numero, { fontSize: String(s.numero || '').length > 6 ? 190 : 260, fontWeight: 800, color: ROSSO, lineHeight: 0.95, letterSpacing: -8 }),
+      testo(s.titolo, { fontSize: 72, fontWeight: 800, color: BIANCO, lineHeight: 1.08, letterSpacing: -1.5 }),
+      s.testo ? testo(s.testo, { fontSize: 38, color: GRIGIO, lineHeight: 1.4 }) : null,
+      s.note ? testo(s.note, { fontSize: 24, color: TENUE, lineHeight: 1.35 }) : null,
+    ].filter(Boolean));
+  }
+  if (tipo === 'mito') {
+    // Post singolo "Vero o falso": l'affermazione, il verdetto e la spiegazione.
+    const vero = /^vero/i.test(s.verdetto || '');
+    return h('div', { display: 'flex', flexDirection: 'column', gap: 34, flexGrow: 1, justifyContent: 'center' }, [
+      testo((s.etichetta || 'Vero o falso?').toUpperCase(), { fontSize: 30, fontWeight: 800, color: ROSSO, letterSpacing: 2 }),
+      testo(`«${s.titolo || ''}»`, { fontSize: 76, fontWeight: 800, color: BIANCO, lineHeight: 1.08, letterSpacing: -1.5 }),
+      h('div', { display: 'flex', alignSelf: 'flex-start', background: vero ? '#1F8A4C' : ROSSO, borderRadius: 18, padding: '16px 34px' }, [
+        testo((s.verdetto || 'Falso').toUpperCase(), { fontSize: 46, fontWeight: 800, color: '#FFFFFF', letterSpacing: 4 }),
+      ]),
+      s.testo ? testo(s.testo, { fontSize: 38, color: GRIGIO, lineHeight: 1.4 }) : null,
+    ].filter(Boolean));
+  }
   if (tipo === 'cta') {
     return h('div', { display: 'flex', flexDirection: 'column', gap: 36, flexGrow: 1, justifyContent: 'center' }, [
       testo(s.titolo, { fontSize: 88, fontWeight: 800, color: BIANCO, lineHeight: 1.08, letterSpacing: -2 }),
@@ -114,14 +139,16 @@ function corpo(s) {
   ].filter(Boolean));
 }
 
-function slide(s, n, tot, logo, rubrica) {
+function slide(s, n, tot, logo, rubrica, alto) {
+  const reel = alto === H_REEL;
   return h('div', {
-    display: 'flex', flexDirection: 'column', width: W, height: H, background: NERO,
-    padding: '64px 64px 56px', fontFamily: 'Inter', color: BIANCO, gap: 40,
+    display: 'flex', flexDirection: 'column', width: reel ? W_REEL : W, height: alto || H, background: NERO,
+    // Nel reel lascio libere le fasce in alto e in basso coperte dall'interfaccia di Instagram.
+    padding: reel ? '170px 48px 250px' : '64px 64px 56px', fontFamily: 'Inter', color: BIANCO, gap: 40,
   }, [testata(n, tot, s.rubrica || rubrica), corpo(s), piede(logo, (s.tipo || 'testo') !== 'cta')]);
 }
 
-async function disegna(dati, n) {
+async function disegna(dati, n, formato) {
   const satori = (await import('satori')).default;
   const { Resvg } = require('@resvg/resvg-js');
   const sharp = require('sharp');
@@ -130,8 +157,12 @@ async function disegna(dati, n) {
   const s = slides[n - 1] ? { ...slides[n - 1] } : null;
   if (!s) return null;
   [s.immagine, s.immagine2] = await Promise.all([incorpora(s.immagine), incorpora(s.immagine2)]);
-  const svg = await satori(slide(s, n, slides.length, logo, slides[0] && slides[0].rubrica), { width: W, height: H, fonts });
+  const alto = formato === 'reel' ? H_REEL : H;
+  // Nel reel niente numerazione "1/5": scorre da solo.
+  const svg = await satori(slide(s, n, formato === 'reel' ? 1 : slides.length, logo, slides[0] && slides[0].rubrica, alto), { width: formato === 'reel' ? W_REEL : W, height: alto, fonts });
   const png = new Resvg(svg, { fitTo: { mode: 'width', value: W } }).render().asPng();
+  if (formato === 'png') return png;
+  if (formato === 'reel') return png;
   return sharp(png).jpeg({ quality: 90, mozjpeg: true }).toBuffer();
 }
 
@@ -178,7 +209,8 @@ module.exports = async (req, res) => {
     if (id === 'demo') dati = DEMO;
     else if (/^[0-9a-f-]{36}$/i.test(id)) dati = await leggi(id);
     if (!dati) { res.statusCode = 404; return res.end('Post non trovato'); }
-    const jpg = await disegna(dati, n);
+    const reel = url.searchParams.get('f') === 'reel';
+    const jpg = reel ? await require('sharp')(await disegna(dati, n, 'reel')).resize(1080, 1920, { fit: 'fill' }).jpeg({ quality: 88, mozjpeg: true }).toBuffer() : await disegna(dati, n);
     if (!jpg) { res.statusCode = 404; return res.end('Slide non trovata'); }
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300');
@@ -189,3 +221,6 @@ module.exports = async (req, res) => {
     res.end('Errore nel disegnare la slide');
   }
 };
+
+module.exports.disegna = disegna;
+module.exports.leggi = leggi;

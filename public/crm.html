@@ -477,20 +477,30 @@ function vChiamate() {
 }
 
 const SOCIAL = 'https://galvarent-social.vercel.app';
+const TIPI_POST = { carosello: 'Carosello Instagram', singolo: 'Post singolo Instagram', reel: 'Reel Instagram', linkedin: 'LinkedIn' };
 function cartaPost(p) {
   const n = Array.isArray(p.slides) ? p.slides.length : 0;
-  const imgs = Array.from({ length: n }, (_, i) => `<img loading="lazy" alt="Slide ${i + 1}" src="${SOCIAL}/api/slide?p=${encodeURIComponent(p.id)}&n=${i + 1}&v=${encodeURIComponent(p.aggiornato || '')}">`).join('');
+  const tipo = p.tipo || 'carosello';
+  const manuale = tipo === 'reel' || tipo === 'linkedin'; // li pubblica Andrea dall'app
+  const v = encodeURIComponent(p.aggiornato || '');
+  const imgs = tipo === 'linkedin' ? '' : Array.from({ length: n }, (_, i) => `<img loading="lazy" alt="Scena ${i + 1}" ${tipo === 'reel' ? 'style="width:112px;height:199px"' : ''} src="${SOCIAL}/api/slide?p=${encodeURIComponent(p.id)}&n=${i + 1}${tipo === 'reel' ? '&f=reel' : ''}&v=${v}">`).join('');
   const quando = p.quando ? fQuando.format(new Date(p.quando)) : 'data da fissare';
   const mod = p.stato === 'bozza' || p.stato === 'approvato';
-  return `<div class="post" data-post="${esc(p.id)}"><div class="sotto" style="color:var(--dim)">${esc(quando)} · ${esc(p.tipo || 'carosello')}${p.tema ? ' · ' + esc(p.tema) : ''}</div>
-    ${n ? `<div class="strip">${imgs}</div>` : ''}
-    ${mod ? `<textarea name="didascalia" aria-label="Didascalia">${esc(p.didascalia || '')}</textarea>` : `<div style="white-space:pre-wrap;margin-top:6px">${esc(p.didascalia || '')}</div>`}
+  const video = `${SOCIAL}/api/reel?p=${encodeURIComponent(p.id)}&v=${v}`;
+  const extra = tipo === 'reel' ? `<a class="btn" href="${video}&scarica=1" download>Scarica il video</a><a class="btn grigio" href="${video}" target="_blank" rel="noopener">Guarda</a>`
+    : tipo === 'linkedin' ? `<button class="btn" data-post-copia="1">Copia il testo</button><a class="btn grigio" href="https://www.linkedin.com/feed/?shareActive=true" target="_blank" rel="noopener">Apri LinkedIn</a>` : '';
+  const azioni = p.stato === 'bozza' ? `<button class="btn verde" data-post-stato="approvato">Approva</button><button class="btn" data-post-nota="1">Chiedi modifiche</button><button class="btn grigio" data-post-stato="scartato">Scarta</button>`
+    : p.stato === 'approvato' && manuale ? `${extra}<button class="btn verde" data-post-stato="pubblicato">Fatto, l'ho pubblicato</button><button class="btn grigio" data-post-stato="bozza">Rimetti in bozza</button>`
+    : p.stato === 'approvato' ? `<button class="btn" data-post-salva="1">Salva didascalia</button><button class="btn grigio" data-post-stato="bozza">Rimetti in bozza</button>`
+    : p.stato === 'errore' ? `<button class="btn" data-post-stato="approvato">Riprova</button><button class="btn grigio" data-post-stato="scartato">Scarta</button>`
+    : p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Apri su Instagram</a>` : '';
+  return `<div class="post" data-post="${esc(p.id)}"><div class="sotto" style="color:var(--dim)">${esc(quando)} · ${esc(TIPI_POST[tipo] || tipo)}${p.tema ? ' · ' + esc(p.tema) : ''}</div>
+    ${imgs ? `<div class="strip">${imgs}</div>` : ''}
+    ${manuale && p.stato === 'approvato' ? `<div class="sotto">${tipo === 'reel' ? 'Scarica il video, pubblicalo dall\'app Instagram con un audio di tendenza e incolla la didascalia.' : 'Copia il testo e pubblicalo dal tuo profilo LinkedIn.'}</div>` : ''}
+    ${mod ? `<textarea name="didascalia" aria-label="${tipo === 'linkedin' ? 'Testo del post' : 'Didascalia'}" ${tipo === 'linkedin' ? 'rows="12"' : ''}>${esc(p.didascalia || '')}</textarea>` : `<div style="white-space:pre-wrap;margin-top:6px">${esc(p.didascalia || '')}</div>`}
     ${p.errore ? `<div class="sotto" style="color:var(--rosso,#E83F31)">Errore: ${esc(p.errore)}</div>` : ''}
     ${p.nota ? `<div class="sotto">Nota per Calliope: ${esc(p.nota)}</div>` : ''}
-    <div class="azioni" style="margin-top:10px">${p.stato === 'bozza' ? `<button class="btn verde" data-post-stato="approvato">Approva</button><button class="btn" data-post-nota="1">Chiedi modifiche</button><button class="btn grigio" data-post-stato="scartato">Scarta</button>`
-      : p.stato === 'approvato' ? `<button class="btn" data-post-salva="1">Salva didascalia</button><button class="btn grigio" data-post-stato="bozza">Rimetti in bozza</button>`
-      : p.stato === 'errore' ? `<button class="btn" data-post-stato="approvato">Riprova</button><button class="btn grigio" data-post-stato="scartato">Scarta</button>`
-      : p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Apri su Instagram</a>` : ''}</div></div>`;
+    <div class="azioni" style="margin-top:10px">${p.stato === 'bozza' && extra ? extra : ''}${azioni}</div></div>`;
 }
 function vSocial() {
   const P = D.post || [];
@@ -501,7 +511,7 @@ function vSocial() {
     <div class="numero"><b>${di('approvato').length}</b><span>in programma</span></div>
     <div class="numero bene"><b>${di('pubblicato').length}</b><span>pubblicati in 3 settimane</span></div>
   </div>
-  ${blocco('Da approvare', di('bozza').length ? di('bozza').map(cartaPost).join('') : '<div class="vuoto">Nessuna bozza. Calliope prepara i post il lunedì e il giovedì.</div>', 'Niente esce senza il tuo ok')}
+  ${blocco('Da approvare', di('bozza').length ? di('bozza').map(cartaPost).join('') : '<div class="vuoto">Nessuna bozza. Calliope prepara i post il lunedì, il mercoledì e il venerdì.</div>', 'Niente esce senza il tuo ok')}
   <div style="height:16px"></div>
   ${di('errore').length ? blocco('Non pubblicati', di('errore').map(cartaPost).join('')) + '<div style="height:16px"></div>' : ''}
   ${blocco('In programma', elenco(di('approvato').map(cartaPost), 'Niente in programma.'))}
@@ -733,13 +743,19 @@ document.addEventListener('click', async (ev) => {
     return;
   }
   const cp = t.closest('[data-post]');
+  if (cp && d.postCopia) {
+    const ta = cp.querySelector('textarea');
+    try { await navigator.clipboard.writeText(ta ? ta.value : ''); avvisa('Testo copiato'); } catch { if (ta) { ta.select(); document.execCommand('copy'); } }
+    return;
+  }
   if (cp && (d.postStato || d.postSalva || d.postNota)) {
     const p = (D.post || []).find((x) => x.id === cp.dataset.post); if (!p) return;
     const ta = cp.querySelector('textarea'); const dati = { id: p.id, stato: d.postStato || p.stato };
     if (ta) dati.didascalia = ta.value;
     if (d.postNota) { const n = prompt('Cosa deve cambiare Calliope?', p.nota || ''); if (n === null) return; dati.nota = n; dati.stato = 'bozza'; }
     t.disabled = true;
-    const msg = { approvato: 'Approvato: Calliope lo pubblica alla data prevista', scartato: 'Scartato', bozza: d.postNota ? 'Nota inviata a Calliope' : 'Rimesso in bozza' }[dati.stato] || 'Salvato';
+    const manuale = p.tipo === 'reel' || p.tipo === 'linkedin';
+    const msg = { approvato: manuale ? 'Approvato: lo trovi in programma, pronto da pubblicare' : 'Approvato: Calliope lo pubblica alla data prevista', pubblicato: 'Segnato come pubblicato', scartato: 'Scartato', bozza: d.postNota ? 'Nota inviata a Calliope' : 'Rimesso in bozza' }[dati.stato] || 'Salvato';
     try { await invia('post_stato', dati, d.postSalva ? 'Didascalia salvata' : msg); Object.assign(p, dati); if (d.postNota) p.stato = 'bozza'; disegna(); } catch { t.disabled = false; }
     return;
   }
