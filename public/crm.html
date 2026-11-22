@@ -486,9 +486,7 @@ function cartaPost(p) {
   const imgs = tipo === 'linkedin' ? '' : Array.from({ length: n }, (_, i) => `<img loading="lazy" alt="Scena ${i + 1}" ${tipo === 'reel' ? 'style="width:112px;height:199px"' : ''} src="${SOCIAL}/api/slide?p=${encodeURIComponent(p.id)}&n=${i + 1}${tipo === 'reel' ? '&f=reel' : ''}&v=${v}">`).join('');
   const quando = p.quando ? fQuando.format(new Date(p.quando)) : 'data da fissare';
   const mod = p.stato === 'bozza' || p.stato === 'approvato';
-  const video = `${SOCIAL}/api/reel?p=${encodeURIComponent(p.id)}&v=${v}`;
-  const extra = tipo === 'reel' ? `<a class="btn" href="${video}&scarica=1" download>Scarica il video</a><a class="btn grigio" href="${video}" target="_blank" rel="noopener">Guarda</a>`
-    : tipo === 'linkedin' ? `<button class="btn" data-post-copia="1">Copia il testo</button><a class="btn grigio" href="https://www.linkedin.com/feed/?shareActive=true" target="_blank" rel="noopener">Apri LinkedIn</a>` : '';
+  const extra = tipo === 'linkedin' ? `<button class="btn" data-post-copia="1">Copia il testo</button><a class="btn grigio" href="https://www.linkedin.com/feed/?shareActive=true" target="_blank" rel="noopener">Apri LinkedIn</a>` : '';
   const azioni = p.stato === 'bozza' ? `<button class="btn verde" data-post-stato="approvato">Approva</button><button class="btn" data-post-nota="1">Chiedi modifiche</button><button class="btn grigio" data-post-stato="scartato">Scarta</button>`
     : p.stato === 'approvato' && manuale ? `${extra}<button class="btn verde" data-post-stato="pubblicato">Fatto, l'ho pubblicato</button><button class="btn grigio" data-post-stato="bozza">Rimetti in bozza</button>`
     : p.stato === 'approvato' ? `<button class="btn" data-post-salva="1">Salva didascalia</button><button class="btn grigio" data-post-stato="bozza">Rimetti in bozza</button>`
@@ -496,7 +494,7 @@ function cartaPost(p) {
     : p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Apri su Instagram</a>` : '';
   return `<div class="post" data-post="${esc(p.id)}"><div class="sotto" style="color:var(--dim)">${esc(quando)} · ${esc(TIPI_POST[tipo] || tipo)}${p.tema ? ' · ' + esc(p.tema) : ''}</div>
     ${imgs ? `<div class="strip">${imgs}</div>` : ''}
-    ${manuale && p.stato === 'approvato' ? `<div class="sotto">${tipo === 'reel' ? 'Scarica il video, pubblicalo dall\'app Instagram con un audio di tendenza e incolla la didascalia.' : 'Copia il testo e pubblicalo dal tuo profilo LinkedIn.'}</div>` : ''}
+    ${manuale && p.stato === 'approvato' ? `<div class="sotto">${tipo === 'reel' ? 'Pubblicalo dall\'app Instagram e incolla la didascalia.' : 'Copia il testo e pubblicalo dal tuo profilo LinkedIn.'}</div>` : ''}
     ${mod ? `<textarea name="didascalia" aria-label="${tipo === 'linkedin' ? 'Testo del post' : 'Didascalia'}" ${tipo === 'linkedin' ? 'rows="12"' : ''}>${esc(p.didascalia || '')}</textarea>` : `<div style="white-space:pre-wrap;margin-top:6px">${esc(p.didascalia || '')}</div>`}
     ${p.errore ? `<div class="sotto" style="color:var(--rosso,#E83F31)">Errore: ${esc(p.errore)}</div>` : ''}
     ${p.nota ? `<div class="sotto">Nota per Calliope: ${esc(p.nota)}</div>` : ''}

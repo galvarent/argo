@@ -14,11 +14,6 @@
     },
     "api/promemoria.js": {
       "maxDuration": 60
-    },
-    "api/reel.js": {
-      "memory": 2048,
-      "maxDuration": 60,
-      "includeFiles": "{assets/**,node_modules/ffmpeg-static/ffmpeg}"
     }
   },
   "crons": [
