@@ -74,12 +74,46 @@ const ICONE = {
   stella: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
   regalo: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9"/><path d="M12 8v13"/><path d="M12 8c-2-4-6-4-6-1.5S9 8 12 8c3 0 6-.5 6-1.5S14 4 12 8z"/>',
   targa: '<rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 12h3"/><path d="M11 12h2"/><path d="M15 12h3"/>',
+  batteria: '<rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 10.5v3"/><path d="M6 10v4"/><path d="M10 10v4"/><path d="M14 10v4"/>',
+  gomma: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/>',
+  documento: '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 9h3"/><path d="M9 12.5h7"/><path d="M9 16h7"/>',
+  moto: '<circle cx="5.5" cy="16" r="3"/><circle cx="18.5" cy="16" r="3"/><path d="M5.5 16l4-6h5l4 6"/><path d="M9.5 10l-1-3H6"/><path d="M14.5 10l1.5-3h2"/>',
+  bici: '<circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16l4-7h6l3 7"/><path d="M9.5 9l3 7h-7"/><path d="M8 6h3"/>',
 };
-function icona(nome, lato, colore) {
+const svgImg = (svg, style, w, hh) => h('img', { width: w, height: hh, ...style }, undefined, { src: `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`, width: w, height: hh });
+function icona(nome, lato, colore, spessore, style) {
   const corpoSvg = ICONE[nome];
   if (!corpoSvg) return null;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${lato}" height="${lato}" fill="none" stroke="${colore}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${corpoSvg}</svg>`;
-  return h('img', { width: lato, height: lato }, undefined, { src: `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`, width: lato, height: lato });
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${lato}" height="${lato}" fill="none" stroke="${colore}" stroke-width="${spessore || 1.6}" stroke-linecap="round" stroke-linejoin="round">${corpoSvg}</svg>`;
+  return svgImg(svg, style || {}, lato, lato);
+}
+// Percentuale del campo "numero" ("80%", "8,5 %"), se c'è: il dato si disegna come anello.
+function percentuale(numero) {
+  const m = /^\s*(\d+(?:[.,]\d+)?)\s*%\s*$/.exec(String(numero || ''));
+  return m ? Math.min(100, parseFloat(m[1].replace(',', '.'))) : null;
+}
+// L'icona del tema, grande e tenue, in basso a destra: riempie il vuoto senza coprire il testo.
+function filigrana(s, larg, alt) {
+  const tipo = s.tipo || 'testo';
+  const nome = s.icona || (tipo === 'cta' ? 'chiave' : null);
+  if (s.sfondo || !ICONE[nome] || ['grafico', 'offerta'].includes(tipo)) return null;
+  if (s.immagine || (tipo === 'dato' && percentuale(s.numero) !== null)) return null;
+  // In copertina il titolo è al centro: l'icona scende verso il fondo e resta più piccola.
+  const cop = tipo === 'copertina';
+  const lato = Math.round(larg * (cop ? 0.5 : 0.62));
+  return icona(nome, lato, `rgba(232,63,49,${cop ? 0.13 : 0.17})`, 1.1, { position: 'absolute', right: -Math.round(lato * 0.16), bottom: Math.round(alt * (cop ? 0.02 : 0.1)) });
+}
+// Anello di avanzamento con il numero al centro.
+function anello(perc, lato, colore, numero, etichettaSotto) {
+  const sp = Math.round(lato * 0.085), r = (lato - sp) / 2, c = 2 * Math.PI * r, arco = c * perc / 100;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${lato}" height="${lato}" viewBox="0 0 ${lato} ${lato}"><circle cx="${lato / 2}" cy="${lato / 2}" r="${r}" fill="none" stroke="${LINEA}" stroke-width="${sp}"/><circle cx="${lato / 2}" cy="${lato / 2}" r="${r}" fill="none" stroke="${colore}" stroke-width="${sp}" stroke-linecap="round" stroke-dasharray="${arco} ${c}" transform="rotate(-90 ${lato / 2} ${lato / 2})"/></svg>`;
+  return h('div', { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }, [
+    h('div', { display: 'flex', position: 'relative', width: lato, height: lato, alignItems: 'center', justifyContent: 'center' }, [
+      svgImg(svg, { position: 'absolute', top: 0, left: 0 }, lato, lato),
+      testo(numero, { fontSize: Math.round(lato * (String(numero).length > 4 ? 0.22 : 0.28)), fontWeight: 800, color: colore === ROSSO ? BIANCO : GRIGIO, letterSpacing: -2 }),
+    ]),
+    etichettaSotto ? testo(etichettaSotto, { fontSize: 30, fontWeight: 700, color: colore === ROSSO ? BIANCO : GRIGIO }) : null,
+  ].filter(Boolean));
 }
 // Icona dentro un cerchio rosso tenue, per copertine e dati.
 function bollo(nome, lato) {
@@ -109,6 +143,35 @@ function barre(voci, larghezza) {
       ]),
     ]);
   }));
+}
+
+// Punti che iniziano con una data ("29/11/2026: ...") diventano una linea del tempo.
+const DATA = /^\s*(\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4})\s*[:–-]\s*(.+)$/;
+function elenco(punti) {
+  if (punti.length > 1 && punti.every((p) => DATA.test(p))) {
+    return h('div', { display: 'flex', flexDirection: 'column' }, punti.map((p, i) => {
+      const [, quando, cosa] = DATA.exec(p);
+      return h('div', { display: 'flex', gap: 30 }, [
+        h('div', { display: 'flex', flexDirection: 'column', alignItems: 'center', width: 40 }, [
+          h('div', { display: 'flex', width: 40, height: 40, borderRadius: 20, background: i === 0 ? ROSSO : NERO, border: `6px solid ${ROSSO}`, marginTop: 6 }),
+          i < punti.length - 1 ? h('div', { display: 'flex', width: 6, flexGrow: 1, minHeight: 70, background: LINEA }) : null,
+        ].filter(Boolean)),
+        h('div', { display: 'flex', flexDirection: 'column', gap: 8, paddingBottom: i < punti.length - 1 ? 44 : 0, flex: 1 }, [
+          testo(quando, { fontSize: 46, fontWeight: 800, color: ROSSO, letterSpacing: -1 }),
+          testo(cosa, { fontSize: 38, color: BIANCO, lineHeight: 1.35 }),
+        ]),
+      ]);
+    }));
+  }
+  // Ogni punto in una scheda numerata: più ordine e meno vuoto rispetto all'elenco puntato.
+  const fs = punti.length > 4 ? 32 : 36;
+  return h('div', { display: 'flex', flexDirection: 'column', gap: 16 }, punti.map((p, i) =>
+    h('div', { display: 'flex', alignItems: 'center', gap: 24, background: 'rgba(21,21,21,0.92)', border: `2px solid ${LINEA}`, borderRadius: 22, padding: '20px 26px' }, [
+      h('div', { display: 'flex', width: 54, height: 54, borderRadius: 27, flexShrink: 0, alignItems: 'center', justifyContent: 'center', background: 'rgba(232,63,49,0.14)', border: '2px solid rgba(232,63,49,0.45)' }, [
+        testo(i + 1, { fontSize: 26, fontWeight: 800, color: ROSSO }),
+      ]),
+      testo(p, { fontSize: fs, color: BIANCO, lineHeight: 1.3, flex: 1 }),
+    ])));
 }
 
 function corpo(s) {
@@ -151,6 +214,21 @@ function corpo(s) {
   }
   if (tipo === 'dato') {
     // Post singolo "Il dato": un numero enorme che ferma lo scroll.
+    // Con una percentuale diventa un anello; con "confronto" ({"numero":"22,7%","etichetta":"Europa"}) gli anelli sono due.
+    const perc = percentuale(s.numero);
+    if (perc !== null) {
+      const conf = s.confronto && percentuale(s.confronto.numero) !== null ? s.confronto : null;
+      return h('div', { display: 'flex', flexDirection: 'column', gap: 34, flexGrow: 1, justifyContent: 'center' }, [
+        s.etichetta ? etichetta(s, 30) : null,
+        h('div', { display: 'flex', alignItems: 'flex-end', gap: 56 }, [
+          anello(perc, conf ? 400 : 460, ROSSO, s.numero, conf ? (s.etichettaNumero || 'Italia') : null),
+          conf ? anello(percentuale(conf.numero), 270, '#5B616B', conf.numero, conf.etichetta) : null,
+        ].filter(Boolean)),
+        testo(s.titolo, { fontSize: 68, fontWeight: 800, color: BIANCO, lineHeight: 1.08, letterSpacing: -1.5 }),
+        s.testo ? testo(s.testo, { fontSize: 36, color: GRIGIO, lineHeight: 1.4 }) : null,
+        s.note ? testo(s.note, { fontSize: 24, color: TENUE, lineHeight: 1.35 }) : null,
+      ].filter(Boolean));
+    }
     return h('div', { display: 'flex', flexDirection: 'column', gap: 30, flexGrow: 1, justifyContent: 'center' }, [
       s.icona ? bollo(s.icona, 150) : null,
       s.etichetta ? testo(s.etichetta.toUpperCase(), { fontSize: 30, fontWeight: 800, color: ROSSO, letterSpacing: 2 }) : null,
@@ -196,11 +274,7 @@ function corpo(s) {
     etichetta(s, 28),
     testo(s.titolo, { fontSize: 72, fontWeight: 800, color: BIANCO, lineHeight: 1.1, letterSpacing: -1.5 }),
     s.testo ? testo(s.testo, { fontSize: 38, color: GRIGIO, lineHeight: 1.4 }) : null,
-    punti.length ? h('div', { display: 'flex', flexDirection: 'column', gap: 24 }, punti.map((p) =>
-      h('div', { display: 'flex', alignItems: 'flex-start', gap: 22 }, [
-        h('div', { width: 16, height: 16, borderRadius: 8, background: ROSSO, marginTop: 18, flexShrink: 0 }),
-        testo(p, { fontSize: 38, color: BIANCO, lineHeight: 1.35, flex: 1 }),
-      ]))) : null,
+    punti.length ? elenco(punti) : null,
     immagine(s.immagine, 960, 380),
   ].filter(Boolean));
 }
@@ -219,7 +293,7 @@ function slide(s, n, tot, logo, rubrica, alto) {
     display: 'flex', flexDirection: 'column', width: reel ? W_REEL : W, height: alto || H, backgroundColor: NERO,
     // Nel reel lascio libere le fasce in alto e in basso coperte dall'interfaccia di Instagram.
     padding: reel ? '170px 48px 250px' : '64px 64px 56px', fontFamily: 'Inter', color: BIANCO, gap: 40,
-  }, [...fondo, testata(n, tot, s.rubrica || rubrica), corpo(s), piede(logo, (s.tipo || 'testo') !== 'cta')]);
+  }, [...fondo, filigrana(s, larg, alt), testata(n, tot, s.rubrica || rubrica), corpo(s), piede(logo, (s.tipo || 'testo') !== 'cta')].filter(Boolean));
 }
 
 async function disegna(dati, n, formato) {
