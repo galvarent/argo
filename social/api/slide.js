@@ -15,6 +15,8 @@ const W = 1080, H = 1350;
 const W_REEL = 880, H_REEL = 1564;
 const NERO = '#0A0A0A', CARD = '#151515', LINEA = '#262626', ROSSO = '#E83F31', BIANCO = '#F5F5F5', GRIGIO = '#B4BAC2', TENUE = '#8A9099';
 
+// Andrea in versione cartone (lo stesso dei reel), in basso a destra: campo "andrea" della slide.
+const POSE = ['pollice', 'sereno', 'saluta', 'fianco'];
 let risorse = null;
 function carica() {
   if (risorse) return risorse;
@@ -23,6 +25,10 @@ function carica() {
   risorse = {
     fonts: [400, 600, 700, 800].map((w) => ({ name: 'Inter', data: font(w), weight: w, style: 'normal' })),
     logo: `data:image/svg+xml;base64,${logo.toString('base64')}`,
+    andrea: Object.fromEntries(POSE.map((p) => {
+      const buf = fs.readFileSync(path.join(__dirname, '..', 'assets', 'andrea', `${p}.png`));
+      return [p, { src: `data:image/png;base64,${buf.toString('base64')}`, w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) }];
+    })),
   };
   return risorse;
 }
@@ -92,16 +98,23 @@ function percentuale(numero) {
   const m = /^\s*(\d+(?:[.,]\d+)?)\s*%\s*$/.exec(String(numero || ''));
   return m ? Math.min(100, parseFloat(m[1].replace(',', '.'))) : null;
 }
-// L'icona del tema, grande e tenue, in basso a destra: riempie il vuoto senza coprire il testo.
-function filigrana(s, larg, alt) {
+// Sulla cta compare da solo con il pollice in su; altrove solo se la slide lo chiede ("andrea": "sereno"),
+// e "andrea": false lo toglie anche dalla cta. Il testo si stringe per lasciargli spazio.
+function personaggio(s, reel) {
   const tipo = s.tipo || 'testo';
-  const nome = s.icona || (tipo === 'cta' ? 'chiave' : null);
-  if (s.sfondo || !ICONE[nome] || ['grafico', 'offerta'].includes(tipo)) return null;
-  if (s.immagine || (tipo === 'dato' && percentuale(s.numero) !== null)) return null;
-  // In copertina il titolo è al centro: l'icona scende verso il fondo e resta più piccola.
-  const cop = tipo === 'copertina';
-  const lato = Math.round(larg * (cop ? 0.5 : 0.62));
-  return icona(nome, lato, `rgba(232,63,49,${cop ? 0.13 : 0.17})`, 1.1, { position: 'absolute', right: -Math.round(lato * 0.16), bottom: Math.round(alt * (cop ? 0.02 : 0.1)) });
+  const posa = s.andrea === false ? null : (s.andrea || (tipo === 'cta' ? 'pollice' : null));
+  if (!POSE.includes(posa) || s.sfondo || ['grafico', 'offerta'].includes(tipo)) return null;
+  if (tipo === 'dato' && s.confronto) return null;
+  const a = carica().andrea[posa];
+  const alt = reel ? 600 : 660, larg = Math.round(alt * a.w / a.h);
+  const destra = reel ? 36 : 44, basso = reel ? 210 : 0, alone = 560;
+  return {
+    spazio: larg + (reel ? 10 : 30),
+    nodi: [
+      h('div', { position: 'absolute', width: alone, height: alone, right: destra + larg / 2 - alone / 2, bottom: basso + alt * 0.3, backgroundImage: 'radial-gradient(circle, rgba(232,63,49,0.34) 0%, rgba(232,63,49,0.1) 45%, rgba(232,63,49,0) 70%)' }, ''),
+      h('img', { position: 'absolute', right: destra, bottom: basso, width: larg, height: alt }, undefined, { src: a.src, width: larg, height: alt }),
+    ],
+  };
 }
 // Anello di avanzamento con il numero al centro.
 function anello(perc, lato, colore, numero, etichettaSotto) {
@@ -282,6 +295,7 @@ function corpo(s) {
 function slide(s, n, tot, logo, rubrica, alto) {
   const reel = alto === H_REEL;
   const larg = reel ? W_REEL : W, alt = alto || H;
+  const pers = personaggio(s, reel);
   // Foto a tutto schermo (campo "sfondo") con sfumatura scura per leggere il testo.
   const fondo = s.sfondo ? [
     h('img', { position: 'absolute', top: 0, left: 0, width: larg, height: alt, objectFit: 'cover' }, undefined, { src: s.sfondo, width: larg, height: alt }),
@@ -293,7 +307,9 @@ function slide(s, n, tot, logo, rubrica, alto) {
     display: 'flex', flexDirection: 'column', width: reel ? W_REEL : W, height: alto || H, backgroundColor: NERO,
     // Nel reel lascio libere le fasce in alto e in basso coperte dall'interfaccia di Instagram.
     padding: reel ? '170px 48px 250px' : '64px 64px 56px', fontFamily: 'Inter', color: BIANCO, gap: 40,
-  }, [...fondo, filigrana(s, larg, alt), testata(n, tot, s.rubrica || rubrica), corpo(s), piede(logo, (s.tipo || 'testo') !== 'cta')].filter(Boolean));
+  }, [...fondo, ...(pers ? pers.nodi : []), testata(n, tot, s.rubrica || rubrica),
+    pers ? h('div', { display: 'flex', flexDirection: 'column', flexGrow: 1, paddingRight: pers.spazio }, [corpo(s)]) : corpo(s),
+    piede(logo, (s.tipo || 'testo') !== 'cta' && !pers)].filter(Boolean));
 }
 
 async function disegna(dati, n, formato) {
